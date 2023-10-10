@@ -6,7 +6,7 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
  
-  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.64145,-0.767165,0
+  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.639656,-0.768383,0
   dials.generate_mask imported.expt \
       untrusted.rectangle=0,516,255,261\
       untrusted.rectangle=255,261,0,516
