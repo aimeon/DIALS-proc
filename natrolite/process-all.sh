@@ -1,61 +1,43 @@
 #!/bin/bash
 
-DATA1=Data1_Lei
-DATA3=Data3
-DATA4=Data4
+function process-one {
+  DATA=$1
+  EXCLUDE_IMAGES_MULTIPLE=$2
+ 
+  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.64145,-0.767165,0
+  dials.generate_mask imported.expt \
+      untrusted.rectangle=0,516,255,261\
+      untrusted.rectangle=255,261,0,516
+  dials.apply_mask imported.expt mask=pixels.mask
+  dials.find_spots masked.expt\
+      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.656
+  dials.index masked.expt strong.refl detector.fix=distance space_group=F222
+  dials.refine indexed.expt indexed.refl detector.fix=distance
+  dials.integrate refined.expt refined.refl prediction.d_min=0.656\
+      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE
+}
 
-cd $DATA1/
-dials.import ../../$DATA1/SMV/data/*.img geometry.goniometer.axis=-0.64145,-0.767165,0
-dials.generate_mask imported.expt \
-    untrusted.rectangle=0,516,255,261\
-    untrusted.rectangle=255,261,0,516
-dials.apply_mask imported.expt mask=pixels.mask
-dials.find_spots masked.expt\
-  exclude_images=20:20,40:40,60:60,80:80,100:100,120:120,140:140,160:160,180:180,200:200,220:220,240:240,260:260,280:280,300:300,320:320,340:340,360:360,380:380,400:400,420:420,440:440,460:460,480:480,500:500\
-  d_max=10 d_min=0.656
-dials.index masked.expt strong.refl detector.fix=distance space_group=F222
-dials.refine indexed.expt indexed.refl detector.fix=distance
-dials.integrate refined.expt refined.refl prediction.d_min=0.656\
-  exclude_images=20:20,40:40,60:60,80:80,100:100,120:120,140:140,160:160,180:180,200:200,220:220,240:240,260:260,280:280,300:300,320:320,340:340,360:360,380:380,400:400,420:420,440:440,460:460,480:480,500:500\
-  nproc=12
+# Process each dataset
+mkdir -p Data1
+cd Data1
+process-one Data1 20
 cd ..
 
-cd $DATA3/
-dials.import ../../$DATA3/SMV/data/*.img geometry.goniometer.axis=-0.64145,-0.767165,0
-dials.generate_mask imported.expt \
-    untrusted.rectangle=0,516,255,261\
-    untrusted.rectangle=255,261,0,516
-dials.apply_mask imported.expt mask=pixels.mask
-dials.find_spots masked.expt\
-  exclude_images=20:20,40:40,60:60,80:80,100:100,120:120,140:140,160:160,180:180,200:200,220:220,240:240,260:260,280:280,300:300,320:320,340:340,360:360,380:380\
-  d_max=10 d_min=0.632
-dials.index masked.expt strong.refl detector.fix=distance space_group=F222
-dials.refine indexed.expt indexed.refl detector.fix=distance
-dials.integrate refined.expt refined.refl prediction.d_min=0.632\
-  exclude_images=20:20,40:40,60:60,80:80,100:100,120:120,140:140,160:160,180:180,200:200,220:220,240:240,260:260,280:280,300:300,320:320,340:340,360:360,380:380\
-  nproc=12
+mkdir -p Data3
+cd Data3
+process-one Data3 20
 cd ..
 
-cd $DATA4/
-dials.import ../../$DATA4/SMV/data/*.img geometry.goniometer.axis=-0.64145,-0.767165,0 image_range=1,425
-dials.generate_mask imported.expt \
-    untrusted.rectangle=0,516,255,261\
-    untrusted.rectangle=255,261,0,516
-dials.apply_mask imported.expt mask=pixels.mask
-dials.find_spots masked.expt\
-  exclude_images=20:20,40:40,60:60,80:80,100:100,120:120,140:140,160:160,180:180,200:200,220:220,240:240,260:260,280:280,300:300,320:320,340:340,360:360,380:380,400:400,420:420\
-  d_max=10 d_min=0.6
-dials.index masked.expt strong.refl detector.fix=distance space_group=F222
-dials.refine indexed.expt indexed.refl detector.fix=distance
-dials.integrate refined.expt refined.refl prediction.d_min=0.6\
-  exclude_images=20:20,40:40,60:60,80:80,100:100,120:120,140:140,160:160,180:180,200:200,220:220,240:240,260:260,280:280,300:300,320:320,340:340,360:360,380:380,400:400,420:420\
-  nproc=12
+mkdir -p Data4
+cd Data4
+process-one Data4 20
 cd ..
 
+mkdir -p solve
 cd solve/
-dials.cosym ../$DATA1/integrated.{expt,refl}\
-  ../$DATA3/integrated.{expt,refl}\
-  ../$DATA4/integrated.{expt,refl}\
+dials.cosym ../Data1/integrated.{expt,refl}\
+  ../Data3/integrated.{expt,refl}\
+  ../Data4/integrated.{expt,refl}\
   space_group=F222
 dials.scale symmetrized.{expt,refl}
 dials.export scaled.{expt,refl} format=shelx
