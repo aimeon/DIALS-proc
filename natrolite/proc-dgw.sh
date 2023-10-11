@@ -10,11 +10,11 @@ function process-one {
       untrusted.rectangle=255,261,0,516
   dials.apply_mask imported.expt mask=pixels.mask
   dials.find_spots masked.expt\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.656
+      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.656 nproc=12
   dials.index masked.expt strong.refl detector.fix=distance space_group=F222
   dials.refine indexed.expt indexed.refl detector.fix=distance
   dials.integrate refined.expt refined.refl prediction.d_min=0.656\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE
+      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
 # Process each dataset
