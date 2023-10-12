@@ -26,23 +26,30 @@ do
 
     dials.import template="$DATADIR"/#####.img\
       panel.parallax_correction=False\
-      panel.gain=1\
+      panel.gain=3.5\
       geometry.beam.polarization_fraction=0.5\
       geometry.beam.probe=electron\
       $ROTATION_AXIS
-    dials.find_spots imported.expt
+    dials.find_spots imported.expt d_max=10
 
-    dials.index imported.expt strong.refl detector.fix=distance
+    dials.index imported.expt strong.refl detector.fix=distance space_group=Pnma
     if [ ! -f indexed.expt ]; then
         continue
     fi
 
-    dials.refine indexed.expt indexed.refl detector.fix=distance
+    dials.refine indexed.expt indexed.refl detector.fix=distance unit_cell.force_static=True
+    dials.plot_scan_varying_model refined.expt
     dials.sequence_to_stills refined.expt refined.refl
-    #dials.ssx_integrate stills.expt stills.refl
+
+    dials.ssx_integrate stills.expt stills.refl
 
     # Change back to the top directory
     cd "$SCRIPTDIR"
 
     count=$((count+1))
 done
+
+# Merging for all integrated stills
+mkdir -p solve && cd solve
+xia2.reduce $(find "$SCRIPTDIR" \( -name "integrated_*.expt" -o -name "integrated_*.refl" \) | sort -V)
+cd "$SCRIPTDIR"
