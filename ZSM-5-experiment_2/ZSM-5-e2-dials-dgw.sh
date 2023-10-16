@@ -51,5 +51,11 @@ done
 
 # Merging for all integrated stills
 mkdir -p solve && cd solve
-xia2.reduce $(find "$SCRIPTDIR" \( -name "integrated_*.expt" -o -name "integrated_*.refl" \) | sort -V)
+xia2.ssx_reduce\
+  $(find "$SCRIPTDIR" \( -name "integrated_*.expt" -o -name "integrated_*.refl" \) | sort -V)\
+  d_min=0.65
+dials.export DataFiles/scaled.{expt,refl} format=shelx
+edtools.make_shelx -c 13.5512  20.0053  20.2291   90.000   90.000   90.000 -w 0.01970 -s "Pnma" -m "Si96 O192"
+mv shelx.ins dials.ins
+shelxt dials
 cd "$SCRIPTDIR"
