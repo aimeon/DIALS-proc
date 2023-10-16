@@ -41,7 +41,7 @@ do
     dials.plot_scan_varying_model refined.expt
     dials.sequence_to_stills refined.expt refined.refl
 
-    dials.ssx_integrate stills.expt stills.refl mosaicity_max_limit=0.007
+    dials.ssx_integrate stills.expt stills.refl mosaicity_max_limit=0.01 ellipsoid.unit_cell.fixed=True
 
     # Change back to the top directory
     cd "$SCRIPTDIR"
