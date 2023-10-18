@@ -15,17 +15,17 @@ function process-one {
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.55 nproc=12
   dials.index masked.expt strong.refl detector.fix=distance space_group="P2_1/m"
   dials.refine indexed.expt indexed.refl detector.fix=distance crystal.unit_cell.force_static=True
-  dials.integrate refined.expt refined.refl prediction.d_min=0.55\
+  dials.integrate refined.expt refined.refl prediction.d_min=0.5\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
 
 # Process each dataset
 
-#mkdir -p Data_1
-#cd Data_1
-#process-one Data_1 20
-#cd ..
+mkdir -p Data_1
+cd Data_1
+process-one Data_1 20
+cd ..
 
 mkdir -p Data_2
 cd Data_2
@@ -42,25 +42,35 @@ cd Data_4
 process-one Data_4 20
 cd ..
 
-#mkdir -p Data_5
-#cd Data_5
-#process-one Data_5 20
-#cd ..
+mkdir -p Data_5
+cd Data_5
+process-one Data_5 20
+cd ..
 
 
 mkdir -p solve
 cd solve/
 dials.cosym\
+  ../Data_1/integrated.{expt,refl}\
   ../Data_2/integrated.{expt,refl}\
   ../Data_3/integrated.{expt,refl}\
   ../Data_4/integrated.{expt,refl}\
+  ../Data_5/integrated.{expt,refl}\
   space_group="P2_1/m"
-# dials.cosym changes space group to P 1 21 1, despite us setting space_group="P2_1/m"!
-# Force it into the right space_group again:
-dials.reindex symmetrized.expt space_group="P2_1/m"
-dials.scale reindexed.expt symmetrized.refl d_min=0.6
-dials.export scaled.{expt,refl} format=shelx
+# dials.cosym makes a mess of this! It gets the reindexing wrong, plus
+# changes space group to P 1 21 1, despite us setting space_group="P2_1/m"!
 
+# As we discovered, no reindexing is necessary, so just scale directly:
+dials.scale\
+  ../Data_1/integrated.{expt,refl}\
+  ../Data_2/integrated.{expt,refl}\
+  ../Data_3/integrated.{expt,refl}\
+  ../Data_4/integrated.{expt,refl}\
+  ../Data_5/integrated.{expt,refl}\
+  d_min=0.55
+
+# Export to dials.hkl and make the right dials.ins
+dials.export scaled.{expt,refl} format=shelx
 cat <<+ > dials.ins
 TITL P2_1/m
 CELL 0.0251  9.035  5.795 10.397  90.000 115.659  90.000
