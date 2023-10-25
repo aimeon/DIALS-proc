@@ -32,8 +32,10 @@ do
       $ROTATION_AXIS
     dials.find_spots imported.expt d_max=10
 
-    dials.index imported.expt strong.refl detector.fix=distance space_group=Pnma
+    dials.index imported.expt strong.refl detector.fix=distance space_group=Pnma unit_cell="20.2291 20.0053 13.5512 90.000 90.000 90.000"
     if [ ! -f indexed.expt ]; then
+        cd "$SCRIPTDIR"
+        count=$((count+1))
         continue
     fi
 
@@ -53,9 +55,9 @@ done
 mkdir -p solve && cd solve
 xia2.ssx_reduce\
   $(find "$SCRIPTDIR" \( -name "integrated_*.expt" -o -name "integrated_*.refl" \) | sort -V)\
-  d_min=0.65
+  d_min=0.6
 dials.export DataFiles/scaled.{expt,refl} format=shelx
-edtools.make_shelx -c 13.5512  20.0053  20.2291   90.000   90.000   90.000 -w 0.01970 -s "Pnma" -m "Si12 O26"
+edtools.make_shelx -c 20.2291 20.0053 13.5512 90.000 90.000 90.000 -w 0.01970 -s "Pnma" -m "Si12 O26"
 mv shelx.ins dials.ins
 shelxt dials
 cd "$SCRIPTDIR"
