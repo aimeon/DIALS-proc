@@ -16,62 +16,45 @@ function process-one {
   dials.index masked.expt strong.refl detector.fix=distance space_group="P2_1/m"
   dials.refine indexed.expt indexed.refl detector.fix=distance crystal.unit_cell.force_static=True
   dials.integrate refined.expt refined.refl prediction.d_min=0.5\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
+      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12\
+      profile.gaussian_rs.min_spots.per_degree=0 profile.gaussian_rs.min_spots.overall=0
+
+  # Integrate second way, using scans split at the calibration images
+  dials.slice_sequence exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE refined.expt refined.refl
+  dials.integrate refined_sliced.expt refined_sliced.refl prediction.d_min=0.5\
+      profile.gaussian_rs.min_spots.per_degree=0 profile.gaussian_rs.min_spots.overall=0\
+      output.experiments=integrated_sliced.expt output.reflections=integrated_sliced.refl\
+      output.log=dials.integrate.sliced.log nproc=12
+
+  # Third way, refine again prior to integrating slices
+  dials.refine refined_sliced.expt refined_sliced.refl\
+      detector.fix=distance crystal.fix=cell\
+      output.experiments=re-refined_sliced.expt output.reflections=re-refined_sliced.refl\
+      output.log=dials.refine.sliced.log
+  dials.integrate re-refined_sliced.expt re-refined_sliced.refl prediction.d_min=0.5\
+      profile.gaussian_rs.min_spots.per_degree=0 profile.gaussian_rs.min_spots.overall=0\
+      output.experiments=integrated_sliced2.expt output.reflections=integrated_sliced2.refl\
+      output.log=dials.integrate.sliced2.log nproc=12
 }
 
+function scale_and_solve {
+    INTEGRATED=$1
+    INTENSITY_CHOICE=$2
 
-# Process each dataset
+    dials.scale\
+      ../Data_1/$INTEGRATED.{expt,refl}\
+      ../Data_2/$INTEGRATED.{expt,refl}\
+      ../Data_3/$INTEGRATED.{expt,refl}\
+      ../Data_4/$INTEGRATED.{expt,refl}\
+      ../Data_5/$INTEGRATED.{expt,refl}\
+      d_min=0.55 intensity_choice=$INTENSITY_CHOICE
 
-mkdir -p Data_1
-cd Data_1
-process-one Data_1 20
-cd ..
+    # Export to dials.hkl with different partiality cutoffs
+    dials.export scaled.{expt,refl} format=shelx
+    dials.export scaled.{expt,refl} format=shelx partiality_threshold=0.25 shelx.hklout=dials-0.25.hkl
 
-mkdir -p Data_2
-cd Data_2
-process-one Data_2 20
-cd ..
-
-mkdir -p Data_3
-cd Data_3
-process-one Data_3 20
-cd ..
-
-mkdir -p Data_4
-cd Data_4
-process-one Data_4 20
-cd ..
-
-mkdir -p Data_5
-cd Data_5
-process-one Data_5 20
-cd ..
-
-
-mkdir -p solve
-cd solve/
-dials.cosym\
-  ../Data_1/integrated.{expt,refl}\
-  ../Data_2/integrated.{expt,refl}\
-  ../Data_3/integrated.{expt,refl}\
-  ../Data_4/integrated.{expt,refl}\
-  ../Data_5/integrated.{expt,refl}\
-  space_group="P2_1/m"
-# dials.cosym makes a mess of this! It gets the reindexing wrong, plus
-# changes space group to P 1 21 1, despite us setting space_group="P2_1/m"!
-
-# As we discovered, no reindexing is necessary, so just scale directly:
-dials.scale\
-  ../Data_1/integrated.{expt,refl}\
-  ../Data_2/integrated.{expt,refl}\
-  ../Data_3/integrated.{expt,refl}\
-  ../Data_4/integrated.{expt,refl}\
-  ../Data_5/integrated.{expt,refl}\
-  d_min=0.55
-
-# Export to dials.hkl and make the right dials.ins
-dials.export scaled.{expt,refl} format=shelx
-cat <<+ > dials.ins
+    # Make dials.ins
+    cat <<+ > dials.ins
 TITL P2_1/m
 CELL 0.0251  9.035  5.795 10.397  90.000 115.659  90.000
 ZERR 1.00    0.000  0.000  0.000   0.000   0.000   0.000
@@ -101,6 +84,69 @@ HKLF 4
 END
 +
 
-shelxt dials -s"P2(1)_m"
+    shelxt dials -s"P2(1)_m" > shelx.log
+    cp dials.ins dials-0.25.ins
+    shelxt dials-0.25 -s"P2(1)_m" > shelx-0.25.log
+
+}
+
+# Process each dataset
+
+mkdir -p Data_1
+cd Data_1
+process-one Data_1 20
 cd ..
+
+mkdir -p Data_2
+cd Data_2
+process-one Data_2 20
+cd ..
+
+mkdir -p Data_3
+cd Data_3
+process-one Data_3 20
+cd ..
+
+mkdir -p Data_4
+cd Data_4
+process-one Data_4 20
+cd ..
+
+mkdir -p Data_5
+cd Data_5
+process-one Data_5 20
+cd ..
+
+
+# Solve structure with various options
+mkdir -p solve1
+cd solve1/
+scale_and_solve "integrated" "combine"
+cd ..
+
+mkdir -p solve2
+cd solve2/
+scale_and_solve "integrated" "profile"
+cd ..
+
+mkdir -p solve3
+cd solve3/
+scale_and_solve "integrated_sliced" "combine"
+cd ..
+
+mkdir -p solve4
+cd solve4/
+scale_and_solve "integrated_sliced" "profile"
+cd ..
+
+mkdir -p solve5
+cd solve5/
+scale_and_solve "integrated_sliced2" "combine"
+cd ..
+
+mkdir -p solve6
+cd solve6/
+scale_and_solve "integrated_sliced2" "profile"
+cd ..
+
 
