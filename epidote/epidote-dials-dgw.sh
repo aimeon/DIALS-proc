@@ -15,13 +15,13 @@ function process-one {
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.55 nproc=12
   dials.index masked.expt strong.refl detector.fix=distance space_group="P2_1/m"
   dials.refine indexed.expt indexed.refl detector.fix=distance crystal.unit_cell.force_static=True
-  dials.integrate refined.expt refined.refl prediction.d_min=0.5\
+  dials.integrate refined.expt refined.refl prediction.d_min=0.55\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12\
       profile.gaussian_rs.min_spots.per_degree=0 profile.gaussian_rs.min_spots.overall=0
 
   # Integrate second way, using scans split at the calibration images
   dials.slice_sequence exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE refined.expt refined.refl
-  dials.integrate refined_sliced.expt refined_sliced.refl prediction.d_min=0.5\
+  dials.integrate refined_sliced.expt refined_sliced.refl prediction.d_min=0.55\
       profile.gaussian_rs.min_spots.per_degree=0 profile.gaussian_rs.min_spots.overall=0\
       output.experiments=integrated_sliced.expt output.reflections=integrated_sliced.refl\
       output.log=dials.integrate.sliced.log nproc=12
@@ -44,13 +44,17 @@ function scale_and_solve {
     INTEGRATED=$1
     INTENSITY_CHOICE=$2
 
+    # Omit Data_1 because it is weak
     dials.scale\
-      ../Data_1/$INTEGRATED.{expt,refl}\
       ../Data_2/$INTEGRATED.{expt,refl}\
       ../Data_3/$INTEGRATED.{expt,refl}\
       ../Data_4/$INTEGRATED.{expt,refl}\
       ../Data_5/$INTEGRATED.{expt,refl}\
-      d_min=0.55 intensity_choice=$INTENSITY_CHOICE
+      d_min=0.55 intensity_choice=$INTENSITY_CHOICE\
+      best_unit_cell="9.00      5.83     10.34  90.000 114.921  90.000" # taken from XSCALE.LP, so merging stats are comparable with XDS
+
+    # Get cluster information
+    xia2.cluster_analysis scaled.expt scaled.refl
 
     # Export to dials.hkl
     dials.export scaled.{expt,refl} format=shelx
@@ -155,25 +159,25 @@ cd ..
 mkdir -p solve1
 cd solve1/
 scale_and_solve "integrated" "combine"
-# R1 =  0.2239 for   2837 unique reflections after merging for Fourier
+# R1 =  0.2241 for   2847 unique reflections after merging for Fourier
 cd ..
 
 mkdir -p solve2
 cd solve2/
 scale_and_solve "integrated" "profile"
-# R1 =  0.2240 for   2836 unique reflections after merging for Fourier
+# R1 =  0.2249 for   2846 unique reflections after merging for Fourier
 cd ..
 
 mkdir -p solve3
 cd solve3/
 scale_and_solve "integrated_sliced" "combine"
-# R1 =  0.2299 for   2858 unique reflections after merging for Fourier
+# R1 =  0.2226 for   2844 unique reflections after merging for Fourier
 cd ..
 
 mkdir -p solve4
 cd solve4/
 scale_and_solve "integrated_sliced" "profile"
-# R1 =  0.2297 for   2838 unique reflections after merging for Fourier
+# R1 =  0.2304 for   2817 unique reflections after merging for Fourier
 cd ..
 
 # The below jobs fail, because of failures to process in Data_1, Data_4 and Data_5
