@@ -68,7 +68,7 @@ cd ..
 
 mkdir -p solve
 cd solve/
-dials.cosym\
+dials.scale\
   ../experiment_1/integrated.{expt,refl}\
   ../experiment_3/integrated.{expt,refl}\
   ../experiment_8/integrated.{expt,refl}\
@@ -77,10 +77,6 @@ dials.cosym\
   ../experiment_16/integrated.{expt,refl}\
   ../experiment_18/integrated.{expt,refl}\
   ../experiment_19/integrated.{expt,refl}\
-  space_group=P21\
-  relative_length_tolerance=0.1\
-  absolute_angle_tolerance=3
-dials.scale symmetrized.{expt,refl}\
   filtering.method=deltacchalf\
   max_percent_removed=30\
   deltacchalf.mode=image_group\
@@ -109,6 +105,6 @@ HKLF 4
 END
 
 +
-shelxt dials
+shelxt dials > shelxt.log
 cd ..
 
