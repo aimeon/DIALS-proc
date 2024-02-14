@@ -5,7 +5,7 @@ set -x
 # Check script input
 if [ "$#" -ne 1 ]; then
     echo "You must supply the location of the data parent directory " \
-"(containing Data_{1..5}/ only"
+"(containing Data_{1..5}/) only"
     exit 1
 fi
 PARENTDIR=$(realpath "$1")
