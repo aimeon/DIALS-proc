@@ -58,7 +58,7 @@ TREF 5000
 HKLF 4
 END
 +
-    shelxt dials
+    shelxt dials > shelxt.log
     cd ..
 
     mkdir -p refine
