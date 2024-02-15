@@ -10,21 +10,22 @@ function process-one {
       untrusted.rectangle=255,261,0,516
   dials.apply_mask imported.expt mask=pixels.mask
   dials.find_spots masked.expt\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.656 nproc=12
+      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.6 nproc=12
   dials.index masked.expt strong.refl detector.fix=distance space_group=F222
   dials.refine indexed.expt indexed.refl detector.fix=distance
-  dials.integrate refined.expt refined.refl prediction.d_min=0.656\
+  dials.integrate refined.expt refined.refl prediction.d_min=0.6\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
 function scale_and_solve {
     INTENSITY_CHOICE=$1
 
-    dials.cosym ../Data1/integrated.{expt,refl}\
+    dials.scale\
+      ../Data1/integrated.{expt,refl}\
+      ../Data2/integrated.{expt,refl}\
       ../Data3/integrated.{expt,refl}\
       ../Data4/integrated.{expt,refl}\
-      space_group=F222
-    dials.scale symmetrized.{expt,refl}
+      intensity_choice=$INTENSITY_CHOICE
     dials.export scaled.{expt,refl} format=shelx
 
     mkdir -p solve
@@ -58,6 +59,9 @@ TREF 5000
 HKLF 4
 END
 +
+
+    # Space group is Fdd2
+    # This seems to solve only with shelxt 2014!
     shelxt dials > shelxt.log
     cd ..
 

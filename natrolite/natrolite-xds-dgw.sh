@@ -319,5 +319,5 @@ TREF 5000
 HKLF 4
 END
 +
-shelxt xds
+shelxt xds > shelxt.log
 cd ..
