@@ -16,8 +16,7 @@ function process-one {
   dials.index masked.expt strong.refl detector.fix=distance space_group="P2_1/m"
   dials.refine indexed.expt indexed.refl detector.fix=distance crystal.unit_cell.force_static=True
   dials.integrate refined.expt refined.refl prediction.d_min=0.55\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12\
-      profile.gaussian_rs.min_spots.per_degree=0 profile.gaussian_rs.min_spots.overall=0
+      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
 function scale_and_solve {
