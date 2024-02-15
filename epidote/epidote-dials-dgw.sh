@@ -174,7 +174,7 @@ process-one Data_5 20
 cd ..
 
 
-# Solve structure with various options
+# Solve structure with different intensity choices for scaling
 mkdir -p solve1
 cd solve1/
 scale_and_solve "combine"

@@ -17,36 +17,20 @@ function process-one {
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
-# Process each dataset
-mkdir -p Data1
-cd Data1
-process-one Data1 20
-cd ..
+function scale_and_solve {
+    INTENSITY_CHOICE=$1
 
-mkdir -p Data2
-cd Data2
-process-one Data2 20
-cd ..
+    dials.cosym ../Data1/integrated.{expt,refl}\
+      ../Data3/integrated.{expt,refl}\
+      ../Data4/integrated.{expt,refl}\
+      space_group=F222
+    dials.scale symmetrized.{expt,refl}
+    dials.export scaled.{expt,refl} format=shelx
 
-mkdir -p Data3
-cd Data3
-process-one Data3 20
-cd ..
-
-mkdir -p Data4
-cd Data4
-process-one Data4 20
-cd ..
-
-mkdir -p solve
-cd solve/
-dials.cosym ../Data1/integrated.{expt,refl}\
-  ../Data3/integrated.{expt,refl}\
-  ../Data4/integrated.{expt,refl}\
-  space_group=F222
-dials.scale symmetrized.{expt,refl}
-dials.export scaled.{expt,refl} format=shelx
-cat <<+ > dials.ins
+    mkdir -p solve
+    cd solve
+    cp ../dials.hkl .
+    cat <<+ > dials.ins
 TITL F222
 CELL 0.0251  6.770 18.890 19.040  90.000  90.000  90.000
 ZERR 1.00    0.000  0.000  0.000   0.000   0.000   0.000
@@ -74,5 +58,47 @@ TREF 5000
 HKLF 4
 END
 +
-shelxt dials
+    shelxt dials
+    cd ..
+
+    mkdir -p refine
+    cd refine
+    cp ../dials.hkl .
+    # FIXME refinement here
+
+    cd ..
+}
+
+
+# Process each dataset
+mkdir -p Data1
+cd Data1
+process-one Data1 20
+cd ..
+
+mkdir -p Data2
+cd Data2
+process-one Data2 20
+cd ..
+
+mkdir -p Data3
+cd Data3
+process-one Data3 20
+cd ..
+
+mkdir -p Data4
+cd Data4
+process-one Data4 20
+cd ..
+
+
+# Solve structure with different intensity choices for scaling
+mkdir -p solve1
+cd solve1/
+scale_and_solve "combine"
+cd ..
+
+mkdir -p solve2
+cd solve2/
+scale_and_solve "profile"
 cd ..
