@@ -4,7 +4,10 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.645847,-0.763426,0
+  # Set the gain to 2 to reduce I/sigma estimates, otherwise shelxt 2018/2 will fail to solve the structure!
+  # I think that is because that version rejects space groups for which mean I/sigma(I) > 5 for systematic
+  # absences
+  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=2
   dials.generate_mask imported.expt \
       untrusted.rectangle=0,516,255,261\
       untrusted.rectangle=255,261,0,516
@@ -12,7 +15,9 @@ function process-one {
   dials.find_spots masked.expt\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.6 nproc=12
   dials.index masked.expt strong.refl detector.fix=distance space_group=F222
-  dials.refine indexed.expt indexed.refl detector.fix=distance
+  # Reindex into the correct cell for the known space group
+  dials.reindex indexed.expt indexed.refl change_of_basis_op=b,c,a space_group=Fdd2
+  dials.refine reindexed.expt reindexed.refl detector.fix=distance
   dials.integrate refined.expt refined.refl prediction.d_min=0.6\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
@@ -31,14 +36,14 @@ function scale_and_solve {
     mkdir -p solve
     cd solve
     cp ../dials.hkl .
-    cat <<+ > dials.ins
-TITL F222
-CELL 0.0251  6.770 18.890 19.040  90.000  90.000  90.000
+    cat <<EOF > dials.ins
+TITL Fdd2
+CELL 0.0251 18.374 18.669  6.767  90.000  90.000  90.000
 ZERR 1.00    0.000  0.000  0.000   0.000   0.000   0.000
 LATT -4
-SYMM X,-Y,-Z
-SYMM -X,Y,-Z
 SYMM -X,-Y,Z
+SYMM -X+1/4,Y+1/4,Z+1/4
+SYMM X+1/4,-Y+1/4,Z+1/4
 SFAC SI  2.1293 57.7748  2.5333 16.4756         =
          0.8349  2.8796  0.3216  0.3860  0.0000 =
          0.0000  0.0000  0.0000  1.1100 28.0860
@@ -58,10 +63,8 @@ UNIT 2 1 1 6 2
 TREF 5000
 HKLF 4
 END
-+
+EOF
 
-    # Space group is Fdd2
-    # This seems to solve only with shelxt 2014!
     shelxt dials > shelxt.log
     cd ..
 
@@ -69,7 +72,6 @@ END
     cd refine
     cp ../dials.hkl .
     # FIXME refinement here
-
     cd ..
 }
 
@@ -82,15 +84,18 @@ cd ..
 
 mkdir -p Data2
 cd Data2
+# reciprocal lattice looks distorted even after refinement. Might be due to beam drift?
 process-one Data2 20
 cd ..
 
 mkdir -p Data3
 cd Data3
+# there are two lattices in this one - worth processing the second?
 process-one Data3 20
 cd ..
 
 mkdir -p Data4
+# Nice one
 cd Data4
 process-one Data4 20
 cd ..
