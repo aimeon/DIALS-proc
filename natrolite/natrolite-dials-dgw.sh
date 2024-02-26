@@ -72,7 +72,7 @@ EOF
     cd refine
     cp ../dials.hkl .
     cat <<EOF > dials.ins
-TITL dials in Fdd2
+TITL natrolite in Fdd2
 CELL 0.0251 18.374 18.669  6.767  90.000  90.000  90.000
 ZERR 8 0 0 0 0 0 0
 LATT -4

@@ -69,7 +69,7 @@ END
     cd refine
     cp ../dials.hkl .
     cat <<EOF > dials.ins
-TITL dials_a.res in P2(1)
+TITL ibuprofen in P2(1)
 CELL 0.0251 12.403 8.097 13.685 90 111.935 90
 ZERR 1 0 0 0 0 0 0
 LATT -1

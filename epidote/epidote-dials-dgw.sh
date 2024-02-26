@@ -79,7 +79,7 @@ END
     cp ../dials.hkl .
     # Refine using a dials.ins based on Angelina's xds_a.res
     cat <<EOF > dials.ins
-TITL dials in P2(1)/m
+TITL epidote in P2(1)/m
 CELL 0.0251 8.852 5.62 10.185 90 115.517 90
 ZERR 2 0 0 0 0 0 0
 LATT 1
