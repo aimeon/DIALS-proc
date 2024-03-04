@@ -31,6 +31,11 @@ function scale_and_solve {
       ../Data3/integrated.{expt,refl}\
       ../Data4/integrated.{expt,refl}\
       intensity_choice=$INTENSITY_CHOICE
+
+    # Get cell and intensity cluster information
+    dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
+    xia2.cluster_analysis scaled.expt scaled.refl
+
     dials.export scaled.{expt,refl} format=shelx
 
     mkdir -p solve

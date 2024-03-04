@@ -31,7 +31,8 @@ function scale_and_solve {
       d_min=0.55 intensity_choice=$INTENSITY_CHOICE\
       best_unit_cell="9.00      5.83     10.34  90.000 114.921  90.000" # taken from XSCALE.LP, so merging stats are comparable with XDS
 
-    # Get cluster information
+    # Get cell and intensity cluster information
+    dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
     xia2.cluster_analysis scaled.expt scaled.refl
 
     # Export to dials.hkl
