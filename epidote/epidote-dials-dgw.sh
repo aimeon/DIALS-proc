@@ -29,7 +29,7 @@ function scale_and_solve {
       ../Data_4/integrated.{expt,refl}\
       ../Data_5/integrated.{expt,refl}\
       d_min=0.55 intensity_choice=$INTENSITY_CHOICE\
-      best_unit_cell="9.00      5.83     10.34  90.000 114.921  90.000" # taken from XSCALE.LP, so merging stats are comparable with XDS
+      best_unit_cell=9.02,5.77,10.31,90,114.82,90 # from dials.cluster_unit_cell.log
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log

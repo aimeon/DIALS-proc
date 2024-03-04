@@ -34,7 +34,8 @@ function scale_and_solve {
       deltacchalf.mode=image_group\
       deltacchalf.stdcutoff=1\
       intensity_choice=$INTENSITY_CHOICE\
-      d_min=0.85
+      d_min=0.85\
+      best_unit_cell=12.42,8.08,13.65,90,112.19,90 # from dials.cluster_unit_cell.log
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log

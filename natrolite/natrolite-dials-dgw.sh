@@ -30,7 +30,8 @@ function scale_and_solve {
       ../Data2/integrated.{expt,refl}\
       ../Data3/integrated.{expt,refl}\
       ../Data4/integrated.{expt,refl}\
-      intensity_choice=$INTENSITY_CHOICE
+      intensity_choice=$INTENSITY_CHOICE\
+      best_unit_cell=18.35,18.68,6.78,90,90,90 # from dials.cluster_unit_cell.log
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
