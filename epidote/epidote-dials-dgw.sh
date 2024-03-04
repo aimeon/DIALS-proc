@@ -6,7 +6,7 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.639656,-0.768383,0
+  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.639656,-0.768383,0 panel.gain=1.35
   dials.generate_mask imported.expt \
       untrusted.rectangle=0,516,255,261\
       untrusted.rectangle=255,261,0,516
@@ -28,8 +28,7 @@ function scale_and_solve {
       ../Data_3/integrated.{expt,refl}\
       ../Data_4/integrated.{expt,refl}\
       ../Data_5/integrated.{expt,refl}\
-      d_min=0.55 intensity_choice=$INTENSITY_CHOICE\
-      best_unit_cell=9.02,5.77,10.31,90,114.82,90 # from dials.cluster_unit_cell.log
+      d_min=0.55 intensity_choice=$INTENSITY_CHOICE
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log

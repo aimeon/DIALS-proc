@@ -4,10 +4,7 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  # Set the gain to 2 to reduce I/sigma estimates, otherwise shelxt 2018/2 will fail to solve the structure!
-  # I think that is because that version rejects space groups for which mean I/sigma(I) > 5 for systematic
-  # absences
-  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=2
+  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=1.35
   dials.generate_mask imported.expt \
       untrusted.rectangle=0,516,255,261\
       untrusted.rectangle=255,261,0,516
@@ -31,7 +28,12 @@ function scale_and_solve {
       ../Data3/integrated.{expt,refl}\
       ../Data4/integrated.{expt,refl}\
       intensity_choice=$INTENSITY_CHOICE\
-      best_unit_cell=18.35,18.68,6.78,90,90,90 # from dials.cluster_unit_cell.log
+      min_Ih=10
+    # min_Ih = 10 has the effect of including more reflections in error
+    # model refinement, which results in more realistic (larger) sigma
+    # values. This allows structure solution by shelxt 2018/2, which
+    # will reject space groups for which mean I/sigma(I) > 5 for
+    # systematic absences.
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log

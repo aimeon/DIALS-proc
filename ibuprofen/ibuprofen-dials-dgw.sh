@@ -4,7 +4,7 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.6204,-0.7843,0.0000
+  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.6204,-0.7843,0.0000 panel.gain=1.35
   dials.generate_mask imported.expt \
       untrusted.rectangle=0,516,255,261\
       untrusted.rectangle=255,261,0,516
@@ -35,7 +35,10 @@ function scale_and_solve {
       deltacchalf.stdcutoff=1\
       intensity_choice=$INTENSITY_CHOICE\
       d_min=0.85\
-      best_unit_cell=12.42,8.08,13.65,90,112.19,90 # from dials.cluster_unit_cell.log
+      min_Ih=10
+    # min_Ih=10 here includes more reflections for error model
+    # refinement, as there are few high intensity reflections in this
+    # data set
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
