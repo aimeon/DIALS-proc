@@ -174,19 +174,15 @@ cd Data_5
 process-one Data_5 20
 cd ..
 
-
 # Solve structure with different intensity choices for scaling
-mkdir -p solve1
-cd solve1/
+mkdir -p scale-combine
+cd scale-combine/
 scale_and_solve "combine"
-# R1 =  0.2241 for   2847 unique reflections after merging for Fourier
 cd ..
 
-mkdir -p solve2
-cd solve2/
+mkdir -p scale-profile
+cd scale-profile/
 scale_and_solve "profile"
-# R1 =  0.2249 for   2846 unique reflections after merging for Fourier
 cd ..
-
 
 

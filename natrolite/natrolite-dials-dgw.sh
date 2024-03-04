@@ -155,14 +155,13 @@ cd Data4
 process-one Data4 20
 cd ..
 
-
 # Solve structure with different intensity choices for scaling
-mkdir -p solve1
-cd solve1/
+mkdir -p scale-combine
+cd scale-combine/
 scale_and_solve "combine"
 cd ..
 
-mkdir -p solve2
-cd solve2/
+mkdir -p scale-profile
+cd scale-profile/
 scale_and_solve "profile"
 cd ..

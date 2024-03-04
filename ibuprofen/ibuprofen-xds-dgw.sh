@@ -530,8 +530,8 @@ xds
 cd ..
 
 
-mkdir -p solve
-cd solve/
+mkdir -p scale
+cd scale/
 cat <<EOF > XSCALE.INP
 OUTPUT_FILE=temp.ahkl
 INPUT_FILE=../experiment_1/XDS_ASCII.HKL
@@ -554,6 +554,9 @@ FRIEDEL'S_LAW=FALSE
 EOF
 xdsconv
 
+mkdir -p solve
+cd solve/
+cp ../xds.hkl .
 cat <<+ > xds.ins
 TITL P2
 CELL 0.0251 12.403  8.097 13.685  90.000 111.935  90.000
@@ -575,6 +578,7 @@ HKLF 4
 END
 +
 shelxt xds > shelxt.log
+cd ..
 
 mkdir -p refine
 cd refine

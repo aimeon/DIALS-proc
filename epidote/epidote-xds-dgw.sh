@@ -343,8 +343,8 @@ xds
 cd ..
 
 # Data_1 is weak and has a poor refined cell, so let's exclude it
-mkdir -p solve
-cd solve/
+mkdir -p scale
+cd scale/
 cat <<EOF > XSCALE.INP
 OUTPUT_FILE=temp.ahkl
 INPUT_FILE=../Data_2/XDS_ASCII.HKL
@@ -363,6 +363,9 @@ FRIEDEL'S_LAW=FALSE
 EOF
 xdsconv
 
+mkdir -p solve
+cd solve/
+cp ../xds.hkl .
 cat <<+ > xds.ins
 TITL P2_1/m
 CELL 0.0251  9.035  5.795 10.397  90.000 115.659  90.000
@@ -392,8 +395,8 @@ TREF 5000
 HKLF 4
 END
 +
-
 shelxt xds > shelxt.log
+cd ..
 
 mkdir -p refine
 cd refine
