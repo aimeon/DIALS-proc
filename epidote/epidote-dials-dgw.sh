@@ -6,17 +6,21 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.639656,-0.768383,0 panel.gain=1.35
+  dials.import ../../$DATA/SMV/data/*.img\
+    geometry.goniometer.axis=-0.639656,-0.768383,0 panel.gain=1.35
   dials.generate_mask imported.expt \
-      untrusted.rectangle=0,516,255,261\
-      untrusted.rectangle=255,261,0,516
+    untrusted.rectangle=0,516,255,261\
+    untrusted.rectangle=255,261,0,516
   dials.apply_mask imported.expt mask=pixels.mask
   dials.find_spots masked.expt\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.55 nproc=12
-  dials.index masked.expt strong.refl detector.fix=distance space_group="P2_1/m"
-  dials.refine indexed.expt indexed.refl detector.fix=distance crystal.unit_cell.force_static=True
+    exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE\
+    d_max=10 d_min=0.55 nproc=12
+  dials.index masked.expt strong.refl\
+    detector.fix=distance space_group="P2_1/m"
+  dials.refine indexed.expt indexed.refl\
+    detector.fix=distance crystal.unit_cell.force_static=True
   dials.integrate refined.expt refined.refl prediction.d_min=0.55\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
+    exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
 function scale_and_solve {

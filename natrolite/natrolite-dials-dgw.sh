@@ -4,16 +4,20 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=1.35
+  dials.import ../../$DATA/SMV/data/*.img\
+    geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=1.35
   dials.generate_mask imported.expt \
-      untrusted.rectangle=0,516,255,261\
-      untrusted.rectangle=255,261,0,516
+    untrusted.rectangle=0,516,255,261\
+    untrusted.rectangle=255,261,0,516
   dials.apply_mask imported.expt mask=pixels.mask
   dials.find_spots masked.expt\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.6 nproc=12
-  dials.index masked.expt strong.refl detector.fix=distance space_group=F222
+    exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE\
+    d_max=10 d_min=0.6 nproc=12
+  dials.index masked.expt strong.refl\
+    detector.fix=distance space_group=F222
   # Reindex into the correct cell for the known space group
-  dials.reindex indexed.expt indexed.refl change_of_basis_op=b,c,a space_group=Fdd2
+  dials.reindex indexed.expt indexed.refl\
+    change_of_basis_op=b,c,a space_group=Fdd2
   dials.refine reindexed.expt reindexed.refl detector.fix=distance
   dials.integrate refined.expt refined.refl prediction.d_min=0.6\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
