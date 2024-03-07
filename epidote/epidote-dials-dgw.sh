@@ -6,17 +6,21 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.639656,-0.768383,0
+  dials.import ../../$DATA/SMV/data/*.img\
+    geometry.goniometer.axis=-0.639656,-0.768383,0 panel.gain=1.35
   dials.generate_mask imported.expt \
-      untrusted.rectangle=0,516,255,261\
-      untrusted.rectangle=255,261,0,516
+    untrusted.rectangle=0,516,255,261\
+    untrusted.rectangle=255,261,0,516
   dials.apply_mask imported.expt mask=pixels.mask
   dials.find_spots masked.expt\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.55 nproc=12
-  dials.index masked.expt strong.refl detector.fix=distance space_group="P2_1/m"
-  dials.refine indexed.expt indexed.refl detector.fix=distance crystal.unit_cell.force_static=True
-  dials.integrate refined.expt refined.refl prediction.d_min=0.55\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
+    exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE\
+    d_max=10 d_min=0.55 nproc=12
+  dials.index masked.expt strong.refl\
+    detector.fix=distance space_group="P2_1/m"
+  dials.refine indexed.expt indexed.refl\
+    detector.fix=distance crystal.unit_cell.force_static=True
+  dials.integrate refined.expt refined.refl prediction.d_min=0.5\
+    exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
 function scale_and_solve {
@@ -28,10 +32,10 @@ function scale_and_solve {
       ../Data_3/integrated.{expt,refl}\
       ../Data_4/integrated.{expt,refl}\
       ../Data_5/integrated.{expt,refl}\
-      d_min=0.55 intensity_choice=$INTENSITY_CHOICE\
-      best_unit_cell="9.00      5.83     10.34  90.000 114.921  90.000" # taken from XSCALE.LP, so merging stats are comparable with XDS
+      d_min=0.55 intensity_choice=$INTENSITY_CHOICE
 
-    # Get cluster information
+    # Get cell and intensity cluster information
+    dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
     xia2.cluster_analysis scaled.expt scaled.refl
 
     # Export to dials.hkl
@@ -79,7 +83,7 @@ END
     cp ../dials.hkl .
     # Refine using a dials.ins based on Angelina's xds_a.res
     cat <<EOF > dials.ins
-TITL dials in P2(1)/m
+TITL epidote in P2(1)/m
 CELL 0.0251 8.852 5.62 10.185 90 115.517 90
 ZERR 2 0 0 0 0 0 0
 LATT 1
@@ -173,19 +177,15 @@ cd Data_5
 process-one Data_5 20
 cd ..
 
-
 # Solve structure with different intensity choices for scaling
-mkdir -p solve1
-cd solve1/
+mkdir -p scale-combine
+cd scale-combine/
 scale_and_solve "combine"
-# R1 =  0.2241 for   2847 unique reflections after merging for Fourier
 cd ..
 
-mkdir -p solve2
-cd solve2/
+mkdir -p scale-profile
+cd scale-profile/
 scale_and_solve "profile"
-# R1 =  0.2249 for   2846 unique reflections after merging for Fourier
 cd ..
-
 
 

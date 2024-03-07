@@ -4,15 +4,19 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.6204,-0.7843,0.0000
+  dials.import ../../$DATA/SMV/data/*.img\
+    geometry.goniometer.axis=-0.6204,-0.7843,0.0000 panel.gain=1.35
   dials.generate_mask imported.expt \
       untrusted.rectangle=0,516,255,261\
       untrusted.rectangle=255,261,0,516
   dials.apply_mask imported.expt mask=pixels.mask
   dials.find_spots masked.expt\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.8 nproc=12
-  dials.index masked.expt strong.refl detector.fix=distance space_group=P21
-  dials.refine indexed.expt indexed.refl detector.fix=distance crystal.unit_cell.force_static=True
+      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE\
+      d_max=10 d_min=0.8 nproc=12
+  dials.index masked.expt strong.refl\
+    detector.fix=distance space_group=P21
+  dials.refine indexed.expt indexed.refl\
+    detector.fix=distance crystal.unit_cell.force_static=True
   dials.integrate refined.expt refined.refl prediction.d_min=0.8\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
@@ -34,7 +38,15 @@ function scale_and_solve {
       deltacchalf.mode=image_group\
       deltacchalf.stdcutoff=1\
       intensity_choice=$INTENSITY_CHOICE\
-      d_min=0.85
+      d_min=0.85\
+      min_Ih=10
+    # min_Ih=10 here includes more reflections for error model
+    # refinement, as there are few high intensity reflections in this
+    # data set
+
+    # Get cell and intensity cluster information
+    dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
+    xia2.cluster_analysis scaled.expt scaled.refl
 
     dials.export scaled.{expt,refl} format=shelx
 
@@ -69,7 +81,7 @@ END
     cd refine
     cp ../dials.hkl .
     cat <<EOF > dials.ins
-TITL dials_a.res in P2(1)
+TITL ibuprofen in P2(1)
 CELL 0.0251 12.403 8.097 13.685 90 111.935 90
 ZERR 1 0 0 0 0 0 0
 LATT -1
@@ -254,13 +266,12 @@ process-one experiment_19 20
 cd ..
 
 # Solve structure with different intensity choices for scaling
-mkdir -p solve1
-cd solve1/
+mkdir -p scale-combine
+cd scale-combine/
 scale_and_solve "combine"
-
 cd ..
-mkdir -p solve2
-cd solve2/
+
+mkdir -p scale-profile
+cd scale-profile/
 scale_and_solve "profile"
-
-
+cd ..

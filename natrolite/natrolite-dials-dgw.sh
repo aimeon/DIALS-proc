@@ -4,21 +4,22 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  # Set the gain to 2 to reduce I/sigma estimates, otherwise shelxt 2018/2 will fail to solve the structure!
-  # I think that is because that version rejects space groups for which mean I/sigma(I) > 5 for systematic
-  # absences
-  dials.import ../../$DATA/SMV/data/*.img geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=2
+  dials.import ../../$DATA/SMV/data/*.img\
+    geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=1.35
   dials.generate_mask imported.expt \
-      untrusted.rectangle=0,516,255,261\
-      untrusted.rectangle=255,261,0,516
+    untrusted.rectangle=0,516,255,261\
+    untrusted.rectangle=255,261,0,516
   dials.apply_mask imported.expt mask=pixels.mask
   dials.find_spots masked.expt\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE d_max=10 d_min=0.6 nproc=12
-  dials.index masked.expt strong.refl detector.fix=distance space_group=F222
+    exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE\
+    d_max=10 d_min=0.6 nproc=12
+  dials.index masked.expt strong.refl\
+    detector.fix=distance space_group=F222
   # Reindex into the correct cell for the known space group
-  dials.reindex indexed.expt indexed.refl change_of_basis_op=b,c,a space_group=Fdd2
+  dials.reindex indexed.expt indexed.refl\
+    change_of_basis_op=b,c,a space_group=Fdd2
   dials.refine reindexed.expt reindexed.refl detector.fix=distance
-  dials.integrate refined.expt refined.refl prediction.d_min=0.6\
+  dials.integrate refined.expt refined.refl prediction.d_min=0.55\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
@@ -30,7 +31,19 @@ function scale_and_solve {
       ../Data2/integrated.{expt,refl}\
       ../Data3/integrated.{expt,refl}\
       ../Data4/integrated.{expt,refl}\
-      intensity_choice=$INTENSITY_CHOICE
+      intensity_choice=$INTENSITY_CHOICE\
+      d_min=0.6\
+      min_Ih=10
+    # min_Ih = 10 has the effect of including more reflections in error
+    # model refinement, which results in more realistic (larger) sigma
+    # values. This allows structure solution by shelxt 2018/2, which
+    # will reject space groups for which mean I/sigma(I) > 5 for
+    # systematic absences.
+
+    # Get cell and intensity cluster information
+    dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
+    xia2.cluster_analysis scaled.expt scaled.refl
+
     dials.export scaled.{expt,refl} format=shelx
 
     mkdir -p solve
@@ -72,7 +85,7 @@ EOF
     cd refine
     cp ../dials.hkl .
     cat <<EOF > dials.ins
-TITL dials in Fdd2
+TITL natrolite in Fdd2
 CELL 0.0251 18.374 18.669  6.767  90.000  90.000  90.000
 ZERR 8 0 0 0 0 0 0
 LATT -4
@@ -149,14 +162,13 @@ cd Data4
 process-one Data4 20
 cd ..
 
-
 # Solve structure with different intensity choices for scaling
-mkdir -p solve1
-cd solve1/
+mkdir -p scale-combine
+cd scale-combine/
 scale_and_solve "combine"
 cd ..
 
-mkdir -p solve2
-cd solve2/
+mkdir -p scale-profile
+cd scale-profile/
 scale_and_solve "profile"
 cd ..
