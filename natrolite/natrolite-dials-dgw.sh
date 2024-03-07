@@ -19,7 +19,7 @@ function process-one {
   dials.reindex indexed.expt indexed.refl\
     change_of_basis_op=b,c,a space_group=Fdd2
   dials.refine reindexed.expt reindexed.refl detector.fix=distance
-  dials.integrate refined.expt refined.refl prediction.d_min=0.6\
+  dials.integrate refined.expt refined.refl prediction.d_min=0.55\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
@@ -32,6 +32,7 @@ function scale_and_solve {
       ../Data3/integrated.{expt,refl}\
       ../Data4/integrated.{expt,refl}\
       intensity_choice=$INTENSITY_CHOICE\
+      d_min=0.6\
       min_Ih=10
     # min_Ih = 10 has the effect of including more reflections in error
     # model refinement, which results in more realistic (larger) sigma
