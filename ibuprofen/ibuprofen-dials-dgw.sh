@@ -22,8 +22,6 @@ function process-one {
 }
 
 function scale_and_solve {
-    INTENSITY_CHOICE=$1
-
     dials.scale\
       ../experiment_1/integrated.{expt,refl}\
       ../experiment_3/integrated.{expt,refl}\
@@ -34,10 +32,8 @@ function scale_and_solve {
       ../experiment_18/integrated.{expt,refl}\
       ../experiment_19/integrated.{expt,refl}\
       filtering.method=deltacchalf\
-      max_percent_removed=30\
       deltacchalf.mode=image_group\
-      deltacchalf.stdcutoff=1\
-      intensity_choice=$INTENSITY_CHOICE\
+      deltacchalf.stdcutoff=3\
       d_min=0.85\
       min_Ih=10
     # min_Ih=10 here includes more reflections for error model
@@ -265,13 +261,9 @@ cd experiment_19
 process-one experiment_19 20
 cd ..
 
-# Solve structure with different intensity choices for scaling
-mkdir -p scale-combine
-cd scale-combine/
-scale_and_solve "combine"
+# Scale, solve, and refine
+mkdir -p scale
+cd scale/
+scale_and_solve
 cd ..
 
-mkdir -p scale-profile
-cd scale-profile/
-scale_and_solve "profile"
-cd ..

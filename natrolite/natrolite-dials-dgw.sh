@@ -24,14 +24,11 @@ function process-one {
 }
 
 function scale_and_solve {
-    INTENSITY_CHOICE=$1
-
     dials.scale\
       ../Data1/integrated.{expt,refl}\
       ../Data2/integrated.{expt,refl}\
       ../Data3/integrated.{expt,refl}\
       ../Data4/integrated.{expt,refl}\
-      intensity_choice=$INTENSITY_CHOICE\
       d_min=0.6\
       min_Ih=10
     # min_Ih = 10 has the effect of including more reflections in error
@@ -162,13 +159,8 @@ cd Data4
 process-one Data4 20
 cd ..
 
-# Solve structure with different intensity choices for scaling
-mkdir -p scale-combine
-cd scale-combine/
-scale_and_solve "combine"
-cd ..
-
-mkdir -p scale-profile
-cd scale-profile/
-scale_and_solve "profile"
+# Scale, solve and refine
+mkdir -p scale
+cd scale
+scale_and_solve
 cd ..

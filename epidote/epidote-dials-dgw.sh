@@ -24,15 +24,13 @@ function process-one {
 }
 
 function scale_and_solve {
-    INTENSITY_CHOICE=$1
-
     # Omit Data_1 because it is weak
     dials.scale\
       ../Data_2/integrated.{expt,refl}\
       ../Data_3/integrated.{expt,refl}\
       ../Data_4/integrated.{expt,refl}\
       ../Data_5/integrated.{expt,refl}\
-      d_min=0.55 intensity_choice=$INTENSITY_CHOICE
+      d_min=0.55
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
@@ -177,15 +175,11 @@ cd Data_5
 process-one Data_5 20
 cd ..
 
-# Solve structure with different intensity choices for scaling
-mkdir -p scale-combine
-cd scale-combine/
-scale_and_solve "combine"
+# Scale, solve, and refine
+mkdir -p scale
+cd scale/
+scale_and_solve
 cd ..
 
-mkdir -p scale-profile
-cd scale-profile/
-scale_and_solve "profile"
-cd ..
 
 
