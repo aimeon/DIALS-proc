@@ -30,7 +30,7 @@ function scale_and_solve {
       ../Data1/integrated.{expt,refl}\
       ../Data3/integrated.{expt,refl}\
       ../Data4/integrated.{expt,refl}\
-      d_min=0.63\
+      d_min=0.61\
       min_Ih=10
     # min_Ih = 10 has the effect of including more reflections in error
     # model refinement, which results in more realistic (larger) sigma
