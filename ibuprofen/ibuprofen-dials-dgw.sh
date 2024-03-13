@@ -17,6 +17,7 @@ function process-one {
     detector.fix=distance space_group=P21
   dials.refine indexed.expt indexed.refl\
     detector.fix=distance crystal.unit_cell.force_static=True
+  dials.plot_scan_varying_model refined.expt
   dials.integrate refined.expt refined.refl prediction.d_min=0.8\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }

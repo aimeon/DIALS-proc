@@ -18,7 +18,9 @@ function process-one {
   # Reindex into the correct cell for the known space group
   dials.reindex indexed.expt indexed.refl\
     change_of_basis_op=b,c,a space_group=Fdd2
-  dials.refine reindexed.expt reindexed.refl detector.fix=distance
+  dials.refine reindexed.expt reindexed.refl detector.fix=distance\
+    crystal.unit_cell.force_static=True
+  dials.plot_scan_varying_model refined.expt
   dials.integrate refined.expt refined.refl prediction.d_min=0.6\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
