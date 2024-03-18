@@ -2,11 +2,19 @@
 
 set -x
 
+# Check script input
+if [ "$#" -ne 1 ]; then
+    echo "You must supply the location of the data parent directory " \
+"(containing Data_{1..5}/) only"
+    exit 1
+fi
+PARENTDIR=$(realpath "$1")
+
 function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img\
+  dials.import "$PARENTDIR"/"$DATA"/SMV/data/*.img\
     geometry.goniometer.axis=-0.639656,-0.768383,0 panel.gain=1.35
   dials.generate_mask imported.expt \
     untrusted.rectangle=0,516,255,261\
