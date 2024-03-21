@@ -33,23 +33,42 @@ function process-one {
 }
 
 function scale_and_solve {
-    dials.scale\
-      ../experiment_1/integrated.{expt,refl}\
-      ../experiment_3/integrated.{expt,refl}\
-      ../experiment_8/integrated.{expt,refl}\
-      ../experiment_12/integrated.{expt,refl}\
-      ../experiment_14/integrated.{expt,refl}\
-      ../experiment_16/integrated.{expt,refl}\
-      ../experiment_18/integrated.{expt,refl}\
-      ../experiment_19/integrated.{expt,refl}\
-      filtering.method=deltacchalf\
-      deltacchalf.mode=image_group\
-      deltacchalf.stdcutoff=3\
-      d_min=0.85\
-      min_Ih=10
-    # min_Ih=10 here includes more reflections for error model
-    # refinement, as there are few high intensity reflections in this
-    # data set
+    FILTER=$1
+
+    if [ "$FILTER" = "filter" ]; then
+        dials.scale\
+          ../experiment_1/integrated.{expt,refl}\
+          ../experiment_3/integrated.{expt,refl}\
+          ../experiment_8/integrated.{expt,refl}\
+          ../experiment_12/integrated.{expt,refl}\
+          ../experiment_14/integrated.{expt,refl}\
+          ../experiment_16/integrated.{expt,refl}\
+          ../experiment_18/integrated.{expt,refl}\
+          ../experiment_19/integrated.{expt,refl}\
+          filtering.method=deltacchalf\
+          deltacchalf.mode=image_group\
+          deltacchalf.stdcutoff=3\
+          d_min=0.85\
+          min_Ih=10
+        # min_Ih=10 here includes more reflections for error model
+        # refinement, as there are few high intensity reflections in this
+        # data set
+    else
+        dials.scale\
+          ../experiment_1/integrated.{expt,refl}\
+          ../experiment_3/integrated.{expt,refl}\
+          ../experiment_8/integrated.{expt,refl}\
+          ../experiment_12/integrated.{expt,refl}\
+          ../experiment_14/integrated.{expt,refl}\
+          ../experiment_16/integrated.{expt,refl}\
+          ../experiment_18/integrated.{expt,refl}\
+          ../experiment_19/integrated.{expt,refl}\
+          d_min=0.85\
+          min_Ih=10
+        # min_Ih=10 here includes more reflections for error model
+        # refinement, as there are few high intensity reflections in this
+        # data set
+    fi
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
@@ -273,8 +292,12 @@ process-one experiment_19 20
 cd ..
 
 # Scale, solve, and refine
-mkdir -p scale
-cd scale/
+mkdir -p scale_all_reflections
+cd scale_all_reflections/
 scale_and_solve
 cd ..
 
+mkdir -p scale_filtered
+cd scale_filtered/
+scale_and_solve "filter"
+cd ..
