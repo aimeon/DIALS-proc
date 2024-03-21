@@ -1,10 +1,20 @@
 #!/bin/bash
 
+set -x
+
+# Check script input
+if [ "$#" -ne 1 ]; then
+    echo "You must supply the location of the data parent directory " \
+"(containing experiment_{1,3,8,12,14,16,18,19}) only"
+    exit 1
+fi
+PARENTDIR=$(realpath "$1")
+
 function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img\
+  dials.import "$PARENTDIR"/"$DATA"/SMV/data/*.img\
     geometry.goniometer.axis=-0.6204,-0.7843,0.0000 panel.gain=1.35
   dials.generate_mask imported.expt \
       untrusted.rectangle=0,516,255,261\
@@ -17,32 +27,48 @@ function process-one {
     detector.fix=distance space_group=P21
   dials.refine indexed.expt indexed.refl\
     detector.fix=distance crystal.unit_cell.force_static=True
+  dials.plot_scan_varying_model refined.expt
   dials.integrate refined.expt refined.refl prediction.d_min=0.8\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
 function scale_and_solve {
-    INTENSITY_CHOICE=$1
+    FILTER=$1
 
-    dials.scale\
-      ../experiment_1/integrated.{expt,refl}\
-      ../experiment_3/integrated.{expt,refl}\
-      ../experiment_8/integrated.{expt,refl}\
-      ../experiment_12/integrated.{expt,refl}\
-      ../experiment_14/integrated.{expt,refl}\
-      ../experiment_16/integrated.{expt,refl}\
-      ../experiment_18/integrated.{expt,refl}\
-      ../experiment_19/integrated.{expt,refl}\
-      filtering.method=deltacchalf\
-      max_percent_removed=30\
-      deltacchalf.mode=image_group\
-      deltacchalf.stdcutoff=1\
-      intensity_choice=$INTENSITY_CHOICE\
-      d_min=0.85\
-      min_Ih=10
-    # min_Ih=10 here includes more reflections for error model
-    # refinement, as there are few high intensity reflections in this
-    # data set
+    if [ "$FILTER" = "filter" ]; then
+        dials.scale\
+          ../experiment_1/integrated.{expt,refl}\
+          ../experiment_3/integrated.{expt,refl}\
+          ../experiment_8/integrated.{expt,refl}\
+          ../experiment_12/integrated.{expt,refl}\
+          ../experiment_14/integrated.{expt,refl}\
+          ../experiment_16/integrated.{expt,refl}\
+          ../experiment_18/integrated.{expt,refl}\
+          ../experiment_19/integrated.{expt,refl}\
+          filtering.method=deltacchalf\
+          deltacchalf.mode=image_group\
+          deltacchalf.stdcutoff=3\
+          d_min=0.85\
+          min_Ih=10
+        # min_Ih=10 here includes more reflections for error model
+        # refinement, as there are few high intensity reflections in this
+        # data set
+    else
+        dials.scale\
+          ../experiment_1/integrated.{expt,refl}\
+          ../experiment_3/integrated.{expt,refl}\
+          ../experiment_8/integrated.{expt,refl}\
+          ../experiment_12/integrated.{expt,refl}\
+          ../experiment_14/integrated.{expt,refl}\
+          ../experiment_16/integrated.{expt,refl}\
+          ../experiment_18/integrated.{expt,refl}\
+          ../experiment_19/integrated.{expt,refl}\
+          d_min=0.85\
+          min_Ih=10
+        # min_Ih=10 here includes more reflections for error model
+        # refinement, as there are few high intensity reflections in this
+        # data set
+    fi
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
@@ -83,7 +109,7 @@ END
     cat <<EOF > dials.ins
 TITL ibuprofen in P2(1)
 CELL 0.0251 12.403 8.097 13.685 90 111.935 90
-ZERR 1 0 0 0 0 0 0
+ZERR 1 0.005 0.0008 0.005 0 0.03 0
 LATT -1
 SYMM -X,0.5+Y,-Z
 SFAC  C 0.136 0.373 0.548 3.281 1.227 13.046 0.597 41.02 0 0 0 0 0.75 12.011
@@ -265,13 +291,13 @@ cd experiment_19
 process-one experiment_19 20
 cd ..
 
-# Solve structure with different intensity choices for scaling
-mkdir -p scale-combine
-cd scale-combine/
-scale_and_solve "combine"
+# Scale, solve, and refine
+mkdir -p scale_all_reflections
+cd scale_all_reflections/
+scale_and_solve
 cd ..
 
-mkdir -p scale-profile
-cd scale-profile/
-scale_and_solve "profile"
+mkdir -p scale_filtered
+cd scale_filtered/
+scale_and_solve "filter"
 cd ..

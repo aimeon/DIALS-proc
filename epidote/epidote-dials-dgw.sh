@@ -2,11 +2,19 @@
 
 set -x
 
+# Check script input
+if [ "$#" -ne 1 ]; then
+    echo "You must supply the location of the data parent directory " \
+"(containing Data_{1..5}/) only"
+    exit 1
+fi
+PARENTDIR=$(realpath "$1")
+
 function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img\
+  dials.import "$PARENTDIR"/"$DATA"/SMV/data/*.img\
     geometry.goniometer.axis=-0.639656,-0.768383,0 panel.gain=1.35
   dials.generate_mask imported.expt \
     untrusted.rectangle=0,516,255,261\
@@ -19,20 +27,20 @@ function process-one {
     detector.fix=distance space_group="P2_1/m"
   dials.refine indexed.expt indexed.refl\
     detector.fix=distance crystal.unit_cell.force_static=True
+  dials.plot_scan_varying_model refined.expt
   dials.integrate refined.expt refined.refl prediction.d_min=0.5\
     exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
 function scale_and_solve {
-    INTENSITY_CHOICE=$1
-
-    # Omit Data_1 because it is weak
+    # Omit Data_1 because it is weak. Do not do deltacchalf filtering
+    # because it actually makes the final data set worse in this case.
     dials.scale\
       ../Data_2/integrated.{expt,refl}\
       ../Data_3/integrated.{expt,refl}\
       ../Data_4/integrated.{expt,refl}\
       ../Data_5/integrated.{expt,refl}\
-      d_min=0.55 intensity_choice=$INTENSITY_CHOICE
+      d_min=0.55
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
@@ -45,7 +53,7 @@ function scale_and_solve {
     mkdir -p solve
     cd solve
     cp ../dials.hkl .
-    cat <<+ > dials.ins
+    cat <<EOF > dials.ins
 TITL P2_1/m
 CELL 0.0251  9.035  5.795 10.397  90.000 115.659  90.000
 ZERR 1.00    0.000  0.000  0.000   0.000   0.000   0.000
@@ -73,7 +81,7 @@ UNIT 3 2 2 1 10 1
 TREF 5000
 HKLF 4
 END
-+
+EOF
 
     shelxt dials -s"P2(1)_m" > shelxt.log
     cd ..
@@ -177,15 +185,9 @@ cd Data_5
 process-one Data_5 20
 cd ..
 
-# Solve structure with different intensity choices for scaling
-mkdir -p scale-combine
-cd scale-combine/
-scale_and_solve "combine"
+# Scale, solve, and refine
+mkdir -p scale
+cd scale/
+scale_and_solve
 cd ..
-
-mkdir -p scale-profile
-cd scale-profile/
-scale_and_solve "profile"
-cd ..
-
 

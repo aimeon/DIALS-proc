@@ -1,10 +1,20 @@
 #!/bin/bash
 
+set -x
+
+# Check script input
+if [ "$#" -ne 1 ]; then
+    echo "You must supply the location of the data parent directory " \
+"(containing Data{1..4}/ only"
+    exit 1
+fi
+PARENTDIR=$(realpath "$1")
+
 function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import ../../$DATA/SMV/data/*.img\
+  dials.import "$PARENTDIR"/"$DATA"/SMV/data/*.img\
     geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=1.35
   dials.generate_mask imported.expt \
     untrusted.rectangle=0,516,255,261\
@@ -18,21 +28,21 @@ function process-one {
   # Reindex into the correct cell for the known space group
   dials.reindex indexed.expt indexed.refl\
     change_of_basis_op=b,c,a space_group=Fdd2
-  dials.refine reindexed.expt reindexed.refl detector.fix=distance
-  dials.integrate refined.expt refined.refl prediction.d_min=0.55\
+  dials.refine reindexed.expt reindexed.refl detector.fix=distance\
+    crystal.unit_cell.force_static=True
+  dials.plot_scan_varying_model refined.expt
+  dials.integrate refined.expt refined.refl prediction.d_min=0.6\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
 }
 
 function scale_and_solve {
-    INTENSITY_CHOICE=$1
-
+    # Data2 is weak, and excluding it gives better merging stats and R1
+    # values.
     dials.scale\
       ../Data1/integrated.{expt,refl}\
-      ../Data2/integrated.{expt,refl}\
       ../Data3/integrated.{expt,refl}\
       ../Data4/integrated.{expt,refl}\
-      intensity_choice=$INTENSITY_CHOICE\
-      d_min=0.6\
+      d_min=0.61\
       min_Ih=10
     # min_Ih = 10 has the effect of including more reflections in error
     # model refinement, which results in more realistic (larger) sigma
@@ -137,7 +147,6 @@ EOF
     cd ..
 }
 
-
 # Process each dataset
 mkdir -p Data1
 cd Data1
@@ -162,13 +171,8 @@ cd Data4
 process-one Data4 20
 cd ..
 
-# Solve structure with different intensity choices for scaling
-mkdir -p scale-combine
-cd scale-combine/
-scale_and_solve "combine"
-cd ..
-
-mkdir -p scale-profile
-cd scale-profile/
-scale_and_solve "profile"
+# Scale, solve and refine
+mkdir -p scale
+cd scale/
+scale_and_solve
 cd ..
