@@ -17,7 +17,9 @@ function process-one {
   MAX_LATTICES=$2
 
   dials.import "$PARENTDIR"/"$DATA"/frames/*.rodhypix\
-    geometry.goniometer.axis=0.0488498,-0.998806,0 # about 2.8° off "vertical"
+    geometry.goniometer.axes=0,-1,0,\
+0,-0.642788,0.766044,\
+0.050593,-0.99872,0 # about 2.9° off "vertical"
   dials.find_spots imported.expt d_max=10
   dials.index imported.expt strong.refl\
     detector.fix=distance space_group=P212121\
@@ -42,7 +44,8 @@ function scale_and_solve {
           ../exp_712/integrated.{expt,refl}\
           ../exp_713/integrated.{expt,refl}\
           ../exp_715/integrated.{expt,refl}\
-          d_min=0.64\
+          merging.nbins=10\
+          d_min=0.63\
           filtering.method=deltacchalf\
           deltacchalf.mode=image_group
     else
@@ -56,14 +59,15 @@ function scale_and_solve {
           ../exp_712/integrated.{expt,refl}\
           ../exp_713/integrated.{expt,refl}\
           ../exp_715/integrated.{expt,refl}\
-          d_min=0.64
+          merging.nbins=10\
+          d_min=0.63
     fi
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
     xia2.cluster_analysis scaled.expt scaled.refl
 
-    dials.export scaled.{expt,refl} format=shelx composition="CHNO"
+    dials.export scaled.{expt,refl} format=shelx composition="C H N O Cl"
 
     mkdir -p solve
     cd solve
@@ -74,7 +78,7 @@ function scale_and_solve {
 
 # Process each dataset
 
-mkdir -p exp_705 # 2 lattices?
+mkdir -p exp_705 # 2 lattices
 cd exp_705
 process-one exp_705 2
 cd ..
@@ -94,9 +98,9 @@ cd exp_708
 process-one exp_708 1
 cd ..
 
-mkdir -p exp_710 # 2 lattices? Second is quite bad
+mkdir -p exp_710 # 2 lattices. Second is quite bad. Don't use
 cd exp_710
-process-one exp_710 2
+process-one exp_710 1
 cd ..
 
 mkdir -p exp_711
@@ -104,9 +108,9 @@ cd exp_711
 process-one exp_711 1
 cd ..
 
-mkdir -p exp_712 # 2 lattices
+mkdir -p exp_712 # Split first lattice and a second one. Not worth including.
 cd exp_712
-process-one exp_712 2
+process-one exp_712 1
 cd ..
 
 mkdir -p exp_713
@@ -129,3 +133,4 @@ mkdir -p scale_filtered
 cd scale_filtered
 scale_and_solve "filter"
 cd ..
+

@@ -560,7 +560,7 @@ cd solve/
 cp ../xds.hkl .
 cat <<+ > xds.ins
 TITL P2
-CELL 0.0251 12.403  8.097 13.685  90.000 111.935  90.000
+CELL 0.0251  12.437 8.077  13.657  90.00   112.18 90.00
 ZERR 1.00    0.000  0.000  0.000   0.000   0.000   0.000
 LATT -1
 SYMM -X,Y,-Z
@@ -586,7 +586,7 @@ cd refine
 cp ../xds.hkl .
 cat <<EOF > xds.ins
 TITL ibuprofen in P2(1)
-CELL 0.0251 12.403 8.097 13.685 90 111.935 90
+CELL 0.0251 12.437 8.077  13.657  90.00   112.18 90.00
 ZERR 1 0 0 0 0 0 0
 LATT -1
 SYMM -X,0.5+Y,-Z
