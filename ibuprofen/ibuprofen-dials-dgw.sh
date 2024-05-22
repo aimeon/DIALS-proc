@@ -91,7 +91,7 @@ function scale_and_solve {
           ../experiment_18/integrated.{expt,refl}\
           ../experiment_19/integrated.{expt,refl}\
           merging.nbins=10\
-          d_min=1.2\
+          d_min=1.0\
           min_Ih=10
     fi
 
