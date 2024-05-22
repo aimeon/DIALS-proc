@@ -34,6 +34,7 @@ function scale_and_solve {
       ../06/integrated.{expt,refl}\
       ../07/integrated.{expt,refl}\
       ../08/integrated.{expt,refl}\
+      merging.nbins=10\
       d_min=0.75
 
     # Get cell and intensity cluster information
