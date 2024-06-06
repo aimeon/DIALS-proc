@@ -2,7 +2,8 @@
 
 from dials.array_family import flex
 import pandas as pd
-from matplotlib import pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.ticker import MaxNLocator
 
 rt = flex.reflection_table.from_file("integrated.refl")
 _, _, z = rt["xyzobs.px.value"].parts()
@@ -26,9 +27,14 @@ prf_counts = pd.Series(z_prf).value_counts().sort_index()
 sum_counts = sum_counts.reindex(range(1, int(max(z_sum)) + 1), fill_value = 0)
 prf_counts = prf_counts.reindex(range(1, int(max(z_prf)) + 1), fill_value = 0)
 
-plt.plot(sum_counts.index, sum_counts.values, label = "summation")
-plt.plot(prf_counts.index, prf_counts.values, label = "profile fit")
-plt.xlabel("Image")
-plt.ylabel("Number integrated")
-plt.legend()
-plt.savefig("sum_vs_int.pdf")
+fg = Figure()
+ax = fg.gca()
+ax.plot(sum_counts.index, sum_counts.values, label = "summation")
+ax.plot(prf_counts.index, prf_counts.values, label = "profile fit")
+ax.set_xlim((1,100))
+ax.set_ylim((-1,21))
+ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+ax.set_xlabel("Image")
+ax.set_ylabel("Number integrated")
+ax.legend()
+fg.savefig("sum_vs_int.pdf")
