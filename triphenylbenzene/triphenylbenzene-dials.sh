@@ -26,14 +26,19 @@ function process-one {
 }
 
 function scale_and_solve {
-    # There seems to be no advantage to doing ΔCC1/2 filtering in this
-    # case, nor setting min_Ih=10. So the scaling job is simple.
-
-    dials.scale\
+    dials.two_theta_refine\
       ../03/integrated.{expt,refl}\
       ../06/integrated.{expt,refl}\
       ../07/integrated.{expt,refl}\
-      ../08/integrated.{expt,refl}\
+      ../08/integrated.{expt,refl}
+
+    # There seems to be no advantage to doing ΔCC1/2 filtering in this
+    # case, nor setting min_Ih=10. So the scaling job is simple.
+    dials.scale refined_cell.expt\
+      ../03/integrated.refl\
+      ../06/integrated.refl\
+      ../07/integrated.refl\
+      ../08/integrated.refl\
       merging.nbins=10\
       d_min=0.75
 

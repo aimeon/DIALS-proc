@@ -38,12 +38,18 @@ function process-one {
 }
 
 function scale_and_solve {
+
     # Data2 is weak, and excluding it gives better merging stats and R1
     # values.
-    dials.scale\
+    dials.two_theta_refine \
       ../Data1/integrated.{expt,refl}\
       ../Data3/integrated.{expt,refl}\
-      ../Data4/integrated.{expt,refl}\
+      ../Data4/integrated.{expt,refl}
+
+    dials.scale refined_cell.expt\
+      ../Data1/integrated.refl\
+      ../Data3/integrated.refl\
+      ../Data4/integrated.refl\
       merging.nbins=10\
       d_min=0.61
 
@@ -61,6 +67,9 @@ EOF
     xia2.cluster_analysis scaled.expt scaled.refl
 
     dials.export scaled.expt scaled_double_sigma.refl format=shelx composition="Si Al Na O H"
+
+    # Also export as MTZ for xia2.compare_merging_stats
+    dials.export scaled.expt scaled_double_sigma.refl
 
     mkdir -p solve
     cd solve

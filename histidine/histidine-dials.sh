@@ -16,10 +16,12 @@ function process-one {
   DATA=$1
   MAX_LATTICES=$2
 
+  # Rotation axis about 2.9° off "vertical". Panel gain as reported by R. Buecker
   dials.import "$PARENTDIR"/"$DATA"/frames/*.rodhypix\
     geometry.goniometer.axes=0,-1,0,\
 0,-0.642788,0.766044,\
-0.050593,-0.99872,0 # about 2.9° off "vertical"
+0.050593,-0.99872,0\
+  panel.gain=2.9
   dials.find_spots imported.expt d_max=10
   dials.index imported.expt strong.refl\
     detector.fix=distance space_group=P212121\
@@ -33,35 +35,48 @@ function process-one {
 function scale_and_solve {
     FILTER=$1
 
+    dials.two_theta_refine\
+      ../exp_705/integrated.{expt,refl}\
+      ../exp_706/integrated.{expt,refl}\
+      ../exp_707/integrated.{expt,refl}\
+      ../exp_708/integrated.{expt,refl}\
+      ../exp_710/integrated.{expt,refl}\
+      ../exp_711/integrated.{expt,refl}\
+      ../exp_712/integrated.{expt,refl}\
+      ../exp_713/integrated.{expt,refl}\
+      ../exp_715/integrated.{expt,refl}
+
     if [ "$FILTER" = "filter" ]; then
-        dials.scale\
-          ../exp_705/integrated.{expt,refl}\
-          ../exp_706/integrated.{expt,refl}\
-          ../exp_707/integrated.{expt,refl}\
-          ../exp_708/integrated.{expt,refl}\
-          ../exp_710/integrated.{expt,refl}\
-          ../exp_711/integrated.{expt,refl}\
-          ../exp_712/integrated.{expt,refl}\
-          ../exp_713/integrated.{expt,refl}\
-          ../exp_715/integrated.{expt,refl}\
+        dials.scale refined_cell.expt\
+          ../exp_705/integrated.refl\
+          ../exp_706/integrated.refl\
+          ../exp_707/integrated.refl\
+          ../exp_708/integrated.refl\
+          ../exp_710/integrated.refl\
+          ../exp_711/integrated.refl\
+          ../exp_712/integrated.refl\
+          ../exp_713/integrated.refl\
+          ../exp_715/integrated.refl\
           merging.nbins=10\
           d_min=0.63\
           filtering.method=deltacchalf\
           deltacchalf.mode=image_group
     else
-        dials.scale\
-          ../exp_705/integrated.{expt,refl}\
-          ../exp_706/integrated.{expt,refl}\
-          ../exp_707/integrated.{expt,refl}\
-          ../exp_708/integrated.{expt,refl}\
-          ../exp_710/integrated.{expt,refl}\
-          ../exp_711/integrated.{expt,refl}\
-          ../exp_712/integrated.{expt,refl}\
-          ../exp_713/integrated.{expt,refl}\
-          ../exp_715/integrated.{expt,refl}\
+        dials.scale refined_cell.expt\
+          ../exp_705/integrated.refl\
+          ../exp_706/integrated.refl\
+          ../exp_707/integrated.refl\
+          ../exp_708/integrated.refl\
+          ../exp_710/integrated.refl\
+          ../exp_711/integrated.refl\
+          ../exp_712/integrated.refl\
+          ../exp_713/integrated.refl\
+          ../exp_715/integrated.refl\
           merging.nbins=10\
           d_min=0.63
     fi
+
+    # FIXME manually remove bad images at the end of data collection with shadow from the sample holder?
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
