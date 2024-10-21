@@ -47,7 +47,9 @@ for i in range(len(experiments)):
     sel = sys_abs["id"] == i
     ax.scatter(sys_abs["d_star_sq"].select(sel), sys_abs["i_over_sigma"].select(sel), color=colors[i], label=labels[i])
 
-strongest = sys_abs.select(sys_abs["i_over_sigma"] > 15.5)
+# Top 3 reflections
+sys_abs.sort("i_over_sigma", reverse=True)
+strongest = sys_abs[0:3]
 for ref in strongest.rows():
     _, _, z = ref["xyzcal.px"]
     print(str(ref["miller_index"]) + f' on image {int(round(z))}, experiment {ref["id"]}. I/σ(I) = {ref["i_over_sigma"]:.2f}')

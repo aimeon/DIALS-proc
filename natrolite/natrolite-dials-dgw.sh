@@ -15,21 +15,20 @@ function process-one {
   EXCLUDE_IMAGES_MULTIPLE=$2
 
   dials.import "$PARENTDIR"/"$DATA"/SMV/data/*.img\
-    geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=1.35
+    geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=2.9
   dials.generate_mask imported.expt \
     untrusted.rectangle=0,516,255,261\
     untrusted.rectangle=255,261,0,516
   dials.apply_mask imported.expt mask=pixels.mask
   dials.find_spots masked.expt\
     exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE\
-    d_max=10 d_min=0.6
+    d_max=10 d_min=0.6 gain=0.5
   dials.index masked.expt strong.refl\
     detector.fix=distance space_group=F222
   # Reindex into the correct cell for the known space group
   dials.reindex indexed.expt indexed.refl\
     change_of_basis_op=b,c,a space_group=Fdd2
-  dials.refine reindexed.expt reindexed.refl detector.fix=distance\
-    crystal.unit_cell.force_static=True
+  dials.refine reindexed.expt reindexed.refl detector.fix=distance
   dials.plot_scan_varying_model refined.expt
   dials.integrate refined.expt refined.refl prediction.d_min=0.6\
       exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE
@@ -53,23 +52,15 @@ function scale_and_solve {
       merging.nbins=10\
       d_min=0.61
 
-    cat <<EOF > double_sigma.py
-from dials.array_family import flex
-scaled = flex.reflection_table.from_file("scaled.refl")
-scaled["intensity.scale.variance"] *= 4
-scaled.as_file("scaled_double_sigma.refl")
-EOF
-
-    dials.python double_sigma.py
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
     xia2.cluster_analysis scaled.expt scaled.refl
 
-    dials.export scaled.expt scaled_double_sigma.refl format=shelx composition="Si Al Na O H"
+    dials.export scaled.expt scaled.refl format=shelx composition="Si Al Na O H"
 
     # Also export as MTZ for xia2.compare_merging_stats
-    dials.export scaled.expt scaled_double_sigma.refl
+    dials.export scaled.expt scaled.refl
 
     mkdir -p solve
     cd solve

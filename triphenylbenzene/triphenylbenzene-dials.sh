@@ -14,7 +14,7 @@ function process-one {
   DATA=$1
 
   dials.import "$PARENTDIR"/"$DATA"/*.cbf\
-    panel.gain=1.7\
+    panel.gain=2.0\
     geometry.goniometer.axis=-0.052336,0.99863,0 # always 3° off "vertical"
   dials.find_spots imported.expt d_max=10
   dials.index imported.expt strong.refl\
