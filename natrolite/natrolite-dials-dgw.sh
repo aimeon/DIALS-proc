@@ -15,78 +15,56 @@ function process-one {
   EXCLUDE_IMAGES_MULTIPLE=$2
 
   dials.import "$PARENTDIR"/"$DATA"/SMV/data/*.img\
-    geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=1.35
+    geometry.goniometer.axis=-0.645847,-0.763426,0 panel.gain=2.9
   dials.generate_mask imported.expt \
     untrusted.rectangle=0,516,255,261\
     untrusted.rectangle=255,261,0,516
   dials.apply_mask imported.expt mask=pixels.mask
   dials.find_spots masked.expt\
     exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE\
-    d_max=10 d_min=0.6 nproc=12
+    d_max=10 d_min=0.6 gain=0.5
   dials.index masked.expt strong.refl\
     detector.fix=distance space_group=F222
   # Reindex into the correct cell for the known space group
   dials.reindex indexed.expt indexed.refl\
     change_of_basis_op=b,c,a space_group=Fdd2
-  dials.refine reindexed.expt reindexed.refl detector.fix=distance\
-    crystal.unit_cell.force_static=True
+  dials.refine reindexed.expt reindexed.refl detector.fix=distance
   dials.plot_scan_varying_model refined.expt
   dials.integrate refined.expt refined.refl prediction.d_min=0.6\
-      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE nproc=12
+      exclude_images_multiple=$EXCLUDE_IMAGES_MULTIPLE
+
+  dials.python ~/sw/Angelina-DIALS-proc/sum_vs_prf_plot.py
 }
 
 function scale_and_solve {
+
     # Data2 is weak, and excluding it gives better merging stats and R1
     # values.
-    dials.scale\
+    dials.two_theta_refine \
       ../Data1/integrated.{expt,refl}\
       ../Data3/integrated.{expt,refl}\
-      ../Data4/integrated.{expt,refl}\
-      d_min=0.61\
-      min_Ih=10
-    # min_Ih = 10 has the effect of including more reflections in error
-    # model refinement, which results in more realistic (larger) sigma
-    # values. This allows structure solution by shelxt 2018/2, which
-    # will reject space groups for which mean I/sigma(I) > 5 for
-    # systematic absences.
+      ../Data4/integrated.{expt,refl}
+
+    dials.scale refined_cell.expt\
+      ../Data1/integrated.refl\
+      ../Data3/integrated.refl\
+      ../Data4/integrated.refl\
+      merging.nbins=10\
+      d_min=0.61
+
 
     # Get cell and intensity cluster information
     dials.cluster_unit_cell scaled.expt > dials.cluster_unit_cell.log
     xia2.cluster_analysis scaled.expt scaled.refl
 
-    dials.export scaled.{expt,refl} format=shelx
+    dials.export scaled.expt scaled.refl format=shelx composition="Si Al Na O H"
+
+    # Also export as MTZ for xia2.compare_merging_stats
+    dials.export scaled.expt scaled.refl
 
     mkdir -p solve
     cd solve
-    cp ../dials.hkl .
-    cat <<EOF > dials.ins
-TITL Fdd2
-CELL 0.0251 18.374 18.669  6.767  90.000  90.000  90.000
-ZERR 1.00    0.000  0.000  0.000   0.000   0.000   0.000
-LATT -4
-SYMM -X,-Y,Z
-SYMM -X+1/4,Y+1/4,Z+1/4
-SYMM X+1/4,-Y+1/4,Z+1/4
-SFAC SI  2.1293 57.7748  2.5333 16.4756         =
-         0.8349  2.8796  0.3216  0.3860  0.0000 =
-         0.0000  0.0000  0.0000  1.1100 28.0860
-SFAC AL  2.2756 72.3220  2.4280 19.7729         =
-         0.8578  3.0799  0.3166  0.4076  0.0000 =
-         0.0000  0.0000  0.0000  1.1800 26.9815
-SFAC NA  2.2406 108.0039  1.3326 24.5047         =
-         0.9070  3.3914  0.2863  0.4346  0.0000 =
-         0.0000  0.0000  0.0000  1.4000 22.9900
-SFAC O   0.4548 23.7803  0.9173  7.6220         =
-         0.4719  2.1440  0.1384  0.2959  0.0000 =
-         0.0000  0.0000  0.0000  0.7300 15.9990
-SFAC H   0.3754 15.4946  0.1408  4.1261         =
-         0.0216  0.0246 -0.1012 46.8840  0.0000 =
-         0.0000  0.0000  0.0000  0.3200  1.0080
-UNIT 2 1 1 6 2
-TREF 5000
-HKLF 4
-END
-EOF
+    cp ../dials.{hkl,ins} .
 
     shelxt dials > shelxt.log
     cd ..
@@ -155,18 +133,17 @@ cd ..
 
 mkdir -p Data2
 cd Data2
-# reciprocal lattice looks distorted even after refinement. Might be due to beam drift?
+# A bit weak
 process-one Data2 20
 cd ..
 
 mkdir -p Data3
 cd Data3
-# there are two lattices in this one - worth processing the second?
+# There are two lattices in this one, or split crystal - worth processing the second?
 process-one Data3 20
 cd ..
 
 mkdir -p Data4
-# Nice one
 cd Data4
 process-one Data4 20
 cd ..
