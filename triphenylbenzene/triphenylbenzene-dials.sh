@@ -14,7 +14,7 @@ function process-one {
   DATA=$1
 
   dials.import "$PARENTDIR"/"$DATA"/*.cbf\
-    panel.gain=2.0\
+    panel.gain=1.6\
     geometry.goniometer.axis=-0.052336,0.99863,0 # always 3° off "vertical"
   dials.find_spots imported.expt d_max=10
   dials.index imported.expt strong.refl\
@@ -22,7 +22,7 @@ function process-one {
   dials.refine indexed.expt indexed.refl\
     detector.fix=distance crystal.unit_cell.force_static=True
   dials.plot_scan_varying_model refined.expt
-  dials.integrate refined.expt refined.refl prediction.d_min=0.65
+  dials.integrate refined.expt refined.refl prediction.d_min=0.7
 }
 
 function scale_and_solve {
