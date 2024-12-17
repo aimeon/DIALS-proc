@@ -22,7 +22,7 @@ function process-one {
   dials.refine indexed.expt indexed.refl\
     detector.fix=distance crystal.unit_cell.force_static=True
   dials.plot_scan_varying_model refined.expt
-  dials.integrate refined.expt refined.refl prediction.d_min=0.65
+  dials.integrate refined.expt refined.refl prediction.d_min=0.7
 }
 
 function scale_and_solve {
