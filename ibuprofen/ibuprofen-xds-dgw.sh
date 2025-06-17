@@ -4,18 +4,18 @@ set -x
 
 # Check script input
 if [ "$#" -ne 1 ]; then
-    echo "You must supply the location of the data parent directory " \
-"(containing experiment_{1,3,8,12,14,16,18,19}) only"
+    echo "You must supply the location of the data parent directory RR-3/ " \
+"downloaded and unpacked from https://zenodo.org/records/7848949"
     exit 1
 fi
 PARENTDIR=$(realpath "$1")
 
-mkdir -p experiment_1
-cd experiment_1
+mkdir -p 1
+cd 1
 cat <<EOF > XDS.INP
 MAXIMUM_NUMBER_OF_JOBS=4
 MAXIMUM_NUMBER_OF_PROCESSORS=4
-NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/experiment_1/SMV/data/0????.img   SMV
+NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/1/XDS/0????.img   SMV
 DATA_RANGE=           1 125
 SPOT_RANGE=           1 125
 BACKGROUND_RANGE=     1 125
@@ -75,12 +75,12 @@ EOF
 xds
 cd ..
 
-mkdir -p experiment_3
-cd experiment_3
+mkdir -p 2
+cd 2
 cat <<EOF > XDS.INP
 MAXIMUM_NUMBER_OF_JOBS=4
 MAXIMUM_NUMBER_OF_PROCESSORS=4
-NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/experiment_3/SMV/data/0????.img   SMV
+NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/2/XDS/0????.img   SMV
 DATA_RANGE=           14 145
 SPOT_RANGE=           14 145
 BACKGROUND_RANGE=     14 145
@@ -140,12 +140,12 @@ EOF
 xds
 cd ..
 
-mkdir -p experiment_8
-cd experiment_8
+mkdir -p 6
+cd 6
 cat <<EOF > XDS.INP
 MAXIMUM_NUMBER_OF_JOBS=4
 MAXIMUM_NUMBER_OF_PROCESSORS=4
-NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/experiment_8/SMV/data/0????.img   SMV
+NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/6/XDS/0????.img   SMV
 DATA_RANGE=           1 155
 SPOT_RANGE=           1 155
 BACKGROUND_RANGE=     1 155
@@ -205,12 +205,12 @@ EOF
 xds
 cd ..
 
-mkdir -p experiment_12
-cd experiment_12
+mkdir -p 12
+cd 12
 cat <<EOF > XDS.INP
 MAXIMUM_NUMBER_OF_JOBS=4
 MAXIMUM_NUMBER_OF_PROCESSORS=4
-NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/experiment_12/SMV/data/0????.img   SMV
+NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/12/XDS/0????.img   SMV
 DATA_RANGE=           1 121
 SPOT_RANGE=           1 121
 BACKGROUND_RANGE=     1 121
@@ -270,12 +270,12 @@ EOF
 xds
 cd ..
 
-mkdir -p experiment_14
-cd experiment_14
+mkdir -p 14
+cd 14
 cat <<EOF > XDS.INP
 MAXIMUM_NUMBER_OF_JOBS=4
 MAXIMUM_NUMBER_OF_PROCESSORS=4
-NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/experiment_14/SMV/data/0????.img   SMV
+NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/14/XDS/0????.img   SMV
 DATA_RANGE=           1 119
 SPOT_RANGE=           1 119
 BACKGROUND_RANGE=     1 119
@@ -335,12 +335,12 @@ EOF
 xds
 cd ..
 
-mkdir -p experiment_16
-cd experiment_16
+mkdir -p 16
+cd 16
 cat <<EOF > XDS.INP
 MAXIMUM_NUMBER_OF_JOBS=4
 MAXIMUM_NUMBER_OF_PROCESSORS=4
-NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/experiment_16/SMV/data/0????.img   SMV
+NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/16/XDS/0????.img   SMV
 DATA_RANGE=           1 82
 SPOT_RANGE=           1 82
 BACKGROUND_RANGE=     1 82
@@ -400,12 +400,12 @@ EOF
 xds
 cd ..
 
-mkdir -p experiment_18
-cd experiment_18
+mkdir -p 18
+cd 18
 cat <<EOF > XDS.INP
 MAXIMUM_NUMBER_OF_JOBS=4
 MAXIMUM_NUMBER_OF_PROCESSORS=4
-NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/experiment_18/SMV/data/0????.img   SMV
+NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/18/XDS/0????.img   SMV
 DATA_RANGE=           1 135
 SPOT_RANGE=           1 135
 BACKGROUND_RANGE=     1 135
@@ -464,12 +464,12 @@ EOF
 xds
 cd ..
 
-mkdir -p experiment_19
-cd experiment_19
+mkdir -p 19
+cd 19
 cat <<EOF > XDS.INP
 MAXIMUM_NUMBER_OF_JOBS=4
 MAXIMUM_NUMBER_OF_PROCESSORS=4
-NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/experiment_19/SMV/data/0????.img   SMV
+NAME_TEMPLATE_OF_DATA_FRAMES= $PARENTDIR/19/XDS/0????.img   SMV
 DATA_RANGE=           1 124
 SPOT_RANGE=           1 124
 BACKGROUND_RANGE=     1 124
@@ -534,14 +534,14 @@ mkdir -p scale
 cd scale/
 cat <<EOF > XSCALE.INP
 OUTPUT_FILE=temp.ahkl
-INPUT_FILE=../experiment_1/XDS_ASCII.HKL
-INPUT_FILE=../experiment_3/XDS_ASCII.HKL
-INPUT_FILE=../experiment_8/XDS_ASCII.HKL
-INPUT_FILE=../experiment_12/XDS_ASCII.HKL
-INPUT_FILE=../experiment_14/XDS_ASCII.HKL
-INPUT_FILE=../experiment_16/XDS_ASCII.HKL
-INPUT_FILE=../experiment_18/XDS_ASCII.HKL
-INPUT_FILE=../experiment_19/XDS_ASCII.HKL
+INPUT_FILE=../1/XDS_ASCII.HKL
+INPUT_FILE=../2/XDS_ASCII.HKL
+INPUT_FILE=../6/XDS_ASCII.HKL
+INPUT_FILE=../12/XDS_ASCII.HKL
+INPUT_FILE=../14/XDS_ASCII.HKL
+INPUT_FILE=../16/XDS_ASCII.HKL
+INPUT_FILE=../18/XDS_ASCII.HKL
+INPUT_FILE=../19/XDS_ASCII.HKL
 SPACE_GROUP_NUMBER=4
 UNIT_CELL_CONSTANTS=12.437 8.077 13.657 90 112.18 90
 RESOLUTION_SHELLS=4 3 2 1 0.85
