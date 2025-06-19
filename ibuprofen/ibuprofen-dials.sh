@@ -4,8 +4,8 @@ set -x
 
 # Check script input
 if [ "$#" -ne 1 ]; then
-    echo "You must supply the location of the data parent directory " \
-"(containing experiment_{1,3,8,12,14,16,18,19}) only"
+    echo "You must supply the location of the data parent directory RR-3/ " \
+"downloaded and unpacked from https://zenodo.org/records/7848949"
     exit 1
 fi
 PARENTDIR=$(realpath "$1")
@@ -14,7 +14,7 @@ function process-one {
   DATA=$1
   EXCLUDE_IMAGES_MULTIPLE=$2
 
-  dials.import "$PARENTDIR"/"$DATA"/SMV/data/*.img\
+  dials.import "$PARENTDIR"/"$DATA"/XDS/*.img\
     geometry.goniometer.axis=-0.6204,-0.7843,0.0000 panel.gain=1.35
   dials.generate_mask imported.expt \
       untrusted.rectangle=0,516,255,261\
@@ -37,14 +37,14 @@ function scale_and_solve {
 
     if [ "$FILTER" = "filter" ]; then
         dials.scale\
-          ../experiment_1/integrated.{expt,refl}\
-          ../experiment_3/integrated.{expt,refl}\
-          ../experiment_8/integrated.{expt,refl}\
-          ../experiment_12/integrated.{expt,refl}\
-          ../experiment_14/integrated.{expt,refl}\
-          ../experiment_16/integrated.{expt,refl}\
-          ../experiment_18/integrated.{expt,refl}\
-          ../experiment_19/integrated.{expt,refl}\
+          ../1/integrated.{expt,refl}\
+          ../2/integrated.{expt,refl}\
+          ../6/integrated.{expt,refl}\
+          ../7/integrated.{expt,refl}\
+          ../8/integrated.{expt,refl}\
+          ../3/integrated.{expt,refl}\
+          ../4/integrated.{expt,refl}\
+          ../5/integrated.{expt,refl}\
           merging.nbins=10\
           filtering.method=deltacchalf\
           deltacchalf.mode=image_group\
@@ -54,42 +54,42 @@ function scale_and_solve {
           min_Ih=10
     elif [ "$FILTER" = "firsthalf" ]; then
         dials.scale\
-          ../experiment_1/integrated.{expt,refl}\
-          ../experiment_3/integrated.{expt,refl}\
-          ../experiment_8/integrated.{expt,refl}\
-          ../experiment_12/integrated.{expt,refl}\
-          ../experiment_14/integrated.{expt,refl}\
-          ../experiment_16/integrated.{expt,refl}\
-          ../experiment_18/integrated.{expt,refl}\
-          ../experiment_19/integrated.{expt,refl}\
+          ../1/integrated.{expt,refl}\
+          ../2/integrated.{expt,refl}\
+          ../6/integrated.{expt,refl}\
+          ../7/integrated.{expt,refl}\
+          ../8/integrated.{expt,refl}\
+          ../3/integrated.{expt,refl}\
+          ../4/integrated.{expt,refl}\
+          ../5/integrated.{expt,refl}\
           merging.nbins=10\
           d_min=0.92\
           min_Ih=10\
           exclude_images=0:66:131,1:74:146,2:85:168,3:67:132,4:59:117,5:43:84,6:75:148,7:65:129
     elif [ "$FILTER" = "manual" ]; then
         dials.scale\
-          ../experiment_1/integrated.{expt,refl}\
-          ../experiment_3/integrated.{expt,refl}\
-          ../experiment_8/integrated.{expt,refl}\
-          ../experiment_12/integrated.{expt,refl}\
-          ../experiment_14/integrated.{expt,refl}\
-          ../experiment_16/integrated.{expt,refl}\
-          ../experiment_18/integrated.{expt,refl}\
-          ../experiment_19/integrated.{expt,refl}\
+          ../1/integrated.{expt,refl}\
+          ../2/integrated.{expt,refl}\
+          ../6/integrated.{expt,refl}\
+          ../7/integrated.{expt,refl}\
+          ../8/integrated.{expt,refl}\
+          ../3/integrated.{expt,refl}\
+          ../4/integrated.{expt,refl}\
+          ../5/integrated.{expt,refl}\
           merging.nbins=10\
           d_min=0.92\
           min_Ih=10\
           exclude_images=0:120:143,2:80:173,3:85:143,4:90:119,5:43:86,6:100:149
     else
         dials.scale\
-          ../experiment_1/integrated.{expt,refl}\
-          ../experiment_3/integrated.{expt,refl}\
-          ../experiment_8/integrated.{expt,refl}\
-          ../experiment_12/integrated.{expt,refl}\
-          ../experiment_14/integrated.{expt,refl}\
-          ../experiment_16/integrated.{expt,refl}\
-          ../experiment_18/integrated.{expt,refl}\
-          ../experiment_19/integrated.{expt,refl}\
+          ../1/integrated.{expt,refl}\
+          ../2/integrated.{expt,refl}\
+          ../6/integrated.{expt,refl}\
+          ../7/integrated.{expt,refl}\
+          ../8/integrated.{expt,refl}\
+          ../3/integrated.{expt,refl}\
+          ../4/integrated.{expt,refl}\
+          ../5/integrated.{expt,refl}\
           merging.nbins=10\
           d_min=1.0\
           min_Ih=10
@@ -112,50 +112,50 @@ function scale_and_solve {
 
 # Process each dataset
 
-mkdir -p experiment_1
-cd experiment_1
-process-one experiment_1 20
+mkdir -p 1
+cd 1
+process-one 1 20
 cd ..
 
-mkdir -p experiment_3
-cd experiment_3
-process-one experiment_3 20
-cd ..
-
-# radiation damage and powder rings
-mkdir -p experiment_8
-cd experiment_8
-process-one experiment_8 20
+mkdir -p 2
+cd 2
+process-one 2 20
 cd ..
 
 # radiation damage and powder rings
-mkdir -p experiment_12
-cd experiment_12
-process-one experiment_12 20
+mkdir -p 6
+cd 6
+process-one 6 20
+cd ..
+
+# radiation damage and powder rings
+mkdir -p 7
+cd 7
+process-one 7 20
 cd ..
 
 # high resolution, some radiation damage
-mkdir -p experiment_14
-cd experiment_14
-process-one experiment_14 20
+mkdir -p 8
+cd 8
+process-one 8 20
 cd ..
 
 # A bit weak
-mkdir -p experiment_16
-cd experiment_16
-process-one experiment_16 20
+mkdir -p 3
+cd 3
+process-one 3 20
 cd ..
 
 # radiation damage
-mkdir -p experiment_18
-cd experiment_18
-process-one experiment_18 20
+mkdir -p 4
+cd 4
+process-one 4 20
 cd ..
 
 # quite high resolution
-mkdir -p experiment_19
-cd experiment_19
-process-one experiment_19 20
+mkdir -p 5
+cd 5
+process-one 5 20
 cd ..
 
 # Scale and solve
